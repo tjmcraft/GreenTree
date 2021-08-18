@@ -1,5 +1,5 @@
 /**
- * GreenTee.js Library
+ * GreenTree.js Module
  * 
  * Copyright (c) TJMC-Company, Inc. and its affiliates. All Rights Reserved.
  * 
