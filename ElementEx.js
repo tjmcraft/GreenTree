@@ -1,4 +1,14 @@
-'use strict'
+/**
+ * ElementEx.js Library
+ * !WARNING! This library modify element instance itself!
+ * 
+ * Copyright (c) TJMC-Company, Inc. and its affiliates. All Rights Reserved.
+ * 
+ * Created for TJMC-Company, Inc. by MakAndJo
+*/
+
+'use strict';
+
 /**
  * Functions toogle elements using css
  * @param {Boolean} state state to toggle TRUE/FALSE (it can be also null)
@@ -56,7 +66,8 @@ function createElement(tag, attrs, ...childrens) {
             if (value instanceof Array) { value = value.filter(e => e).join(' ') }
             if (name == 'html' && value == true) { insert_html = true; continue; }
             if (value === true) { element.setAttribute(name, name) }
-            else if (value !== false && value != null) { element.setAttribute(name, value.toString())}
+            else if (typeof value === 'string' && value != null) { element.setAttribute(name, value) }
+                else if (value != null) { element[name] = value }
         }
     }
     for (const child of childrens) {
@@ -149,25 +160,6 @@ function getPos(el) {
         el = el.offsetParent
     }
     return { top: y, left: x }
-}
-
-const on = (selector, eventType, childSelector, eventHandler) => {
-    const elements = document.querySelectorAll(selector)
-    for (element of elements) {
-        element.addEventListener(eventType, eventOnElement => {
-            if (eventOnElement.target.matches(childSelector)) {
-                eventHandler(eventOnElement)
-            }
-        })
-    }
-}
-
-const _on = (eventType, childSelector, eventHandler) => {
-    document.addEventListener(eventType, eventOnElement => {
-        //if (eventOnElement.target.matches(childSelector)) {
-            eventHandler(eventOnElement)
-        //}
-    })
 }
 
 function getOffset( el ) {
