@@ -8,7 +8,7 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
         typeof define === 'function' && define.amd ? define(['exports'], factory) :
-            (global = global || self, factory(global.GreenTee = {}));
+            (global = global || self, factory(global.GreenTree = {}));
 }(this, (function (exports) {
     'use strict';
 
@@ -166,7 +166,7 @@
                                 dom_element.setAttribute(prop, value);
                             else if (typeof value === 'function' && value != null) // if function
                                 dom_element[prop] = value;
-                            else if (value !=== false && value != null) // something else
+                            else if (value !== false && value != null) // something else
                                 dom_element.setAttribute(prop, value.toString());
                         }
                     }
