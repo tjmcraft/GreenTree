@@ -105,7 +105,7 @@
             return JSON.stringify(this.#props) != JSON.stringify(nextProps) || JSON.stringify(this.state) != JSON.stringify(nextState);
         }
 
-        componentDidMount() {}
+        componentDidMount() { }
 
         /**
          * Get element props (Object)
@@ -156,11 +156,18 @@
                     if (prop && this.props.hasOwnProperty(prop) && !ignoredProps.includes(prop)) {
                         let value = this.props[prop]
                         if (value instanceof Object) {
-                            if (value instanceof Array) dom_element.setAttribute(prop, value.filter(e => e).join(' '));
+                            if (value instanceof Array)
+                                dom_element.setAttribute(prop, value.filter(e => e).join(' '));
                             else Object.assign(dom_element[prop], value);
                         } else {
-                            if (value === true) dom_element.setAttribute(prop, prop);
-                            else if (value !== false && value != null) dom_element.setAttribute(prop, value.toString());
+                            if (value === true) // if simple true
+                                dom_element.setAttribute(prop, prop);
+                            else if (typeof value === 'string' && value != null) // if string
+                                dom_element.setAttribute(prop, value);
+                            else if (typeof value === 'function' && value != null) // if function
+                                dom_element[prop] = value;
+                            else if (value !=== false && value != null) // something else
+                                dom_element.setAttribute(prop, value.toString());
                         }
                     }
                 }
