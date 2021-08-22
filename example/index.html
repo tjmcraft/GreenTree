@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>GreenTree Test</title>
+        <script crossorigin src="https://cdn.jsdelivr.net/gh/tjmcraft/GreenTree@0.0.3/GreenTree.js"></script>
+        <script crossorigin src="https://cdn.jsdelivr.net/gh/tjmcraft/GreenTree@0.0.3/ElementEx.js"></script>
+    </head>
+    <body>
+        <div id="app-mount"></div>
+        <script>
+            class Clock extends GreenTree.AbstractElement {
+                constructor (props) {
+                    super(props);
+                    this.state = {date: new Date().toUTCString()};
+                    setInterval(() => this.tick(), 1000);
+                }
+                tick () {
+                    this.setState({date: new Date().toUTCString()});
+                }
+                create() {
+                    return GreenTree.createElement('div', { class: ['clock'] }, `${this.state.date}`);
+                }
+            }
+
+            const elements = 
+                GreenTree.createElement('root', null,
+                    GreenTree.createElement('span', { class: ['first','second'], customProperty: 'lol' },
+                        GreenTree.createElement(Clock)
+                    )
+                );
+            GreenTree.Render(elements, document.getElementById('app-mount'));
+        </script>
+    </body>
+</html>
