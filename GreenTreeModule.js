@@ -1,5 +1,5 @@
 /**
- * GreenTree.js Module
+ * GreenTee.js Library
  * 
  * Copyright (c) TJMC-Company, Inc. and its affiliates. All Rights Reserved.
  * 
@@ -17,12 +17,12 @@ class AbstractElement {
      * Root content of the element
      * @type {Element}
      */
-    #root = null;
+    __root = null;
 
     /**
      * Props of the element
      */
-    #props = {};
+    __props = {};
 
     /**
      * State storage for element
@@ -37,17 +37,14 @@ class AbstractElement {
     /**
      * Set status of the element
      */
-    #initialized = false;
+    __initialized = false;
 
     /**
      * Element constructor
      * @param {*} props - Properties for the element
      */
     constructor(props = {}) {
-        this.#props = props;
-        //this.state = props;
-        //this.root = cE('div');
-        //this.update(this.state);
+        this.__props = props;
     }
 
     /**
@@ -63,42 +60,44 @@ class AbstractElement {
      */
     setState(state = {}) {
         //console.debug('[ELX] Set state: ', state);
-        
-        this.#updateElement(null, this.#props, state);
-        
+        this._updateElement(null, this.__props, state);
     }
 
     /**
      * Update Element method
      */
-    #updateElement(element = null, props = null, state = null) {
-        props = props || this.#props;
+    _updateElement(element = null, props = null, state = null) {
+        props = props || this.__props;
         state = state || this.state;
 
-        if (!this.#initialized) return;
-        //console.debug('[ELX] Update element (->) : ', this.#root);
-        
+        if (!this.__initialized) return;
+        //console.debug('[ELX] Update element (->) : ', this.__root);
+
         if (this.shouldComponentUpdate(props, state)) {
             this.state = state;
             const new_element = element || this.create.call(this);
-            this.#root && this.#root.replaceWith(new_element);
-            this.#root = (new_element);
-            
+            this.__root && this.__root.replaceWith(new_element);
+            this.__root = (new_element);
+            return true;
         }
-        //console.debug('[ELX] Update element (<-) : ', this.#root);
+        //console.debug('[ELX] Update element (<-) : ', this.__root);
+        return false;
     }
 
-    #mountElement() {
-        this.#root = this.create.call(this);
-        this.#initialized = true;
-        this.#updateElement(this.#root);
-        this.componentDidMount.call(this);
+    _mountElement() {
+        (this.__root = this.create.call(this)) &&
+        (this.__initialized = true) &&
+        (this._updateElement(this.__root)) &&
+        (this.componentDidMount.call(this));
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        //console.debug('shouldComponentUpdate:', JSON.stringify(this.#props) != JSON.stringify(nextProps), '+', JSON.stringify(this.state) != JSON.stringify(nextState), '->', (JSON.stringify(this.#props) != JSON.stringify(nextProps) || JSON.stringify(this.state) != JSON.stringify(nextState)))
-        //console.debug('shouldComponentUpdate:', '\nProps:', this.#props, '\nNextProps:', nextProps, '\nState:', this.state, '\nNextState:', nextState,)
-        return JSON.stringify(this.#props) != JSON.stringify(nextProps) || JSON.stringify(this.state) != JSON.stringify(nextState);
+        //console.debug('shouldComponentUpdate:', JSON.stringify(this.__props) != JSON.stringify(nextProps), '+', JSON.stringify(this.state) != JSON.stringify(nextState), '->', (JSON.stringify(this.__props) != JSON.stringify(nextProps) || JSON.stringify(this.state) != JSON.stringify(nextState)))
+        //console.debug('shouldComponentUpdate:', '\nProps:', this.__props, '\nNextProps:', nextProps, '\nState:', this.state, '\nNextState:', nextState,)
+        return (
+            (JSON.stringify(this.__props) != JSON.stringify(nextProps)) ||
+            (JSON.stringify(this.state) != JSON.stringify(nextState))
+        );
     }
 
     componentDidMount() {}
@@ -108,7 +107,7 @@ class AbstractElement {
      * @type {Object}
      */
     get props() {
-        return this.#props;
+        return this.__props;
     }
 
     /**
@@ -116,15 +115,15 @@ class AbstractElement {
      * @return {HTMLObject}
      */
     get content() {
-        if (!this.#initialized || !this.#root) this.#mountElement.call(this);
-        return this.#root
+        if (!this.__initialized || !this.__root) this._mountElement.call(this);
+        return this.__root
     }
 
     /**
      * Remove element method
      */
     remove() {
-        this.#root.remove()
+        this.__root.remove()
     }
 
 }
@@ -152,11 +151,18 @@ function createElement(type = 'div', attributes = {}, ...children) {
                 if (prop && this.props.hasOwnProperty(prop) && !ignoredProps.includes(prop)) {
                     let value = this.props[prop]
                     if (value instanceof Object) {
-                        if (value instanceof Array) dom_element.setAttribute(prop, value.filter(e => e).join(' '));
+                        if (value instanceof Array) // if array
+                            dom_element.setAttribute(prop, value.filter(e => e).join(' '));
+                        else if (typeof value === 'function' && value != null) // if function
+                            dom_element[prop] = value;
                         else Object.assign(dom_element[prop], value);
                     } else {
-                        if (value === true) dom_element.setAttribute(prop, prop);
-                        else if (value !== false && value != null) dom_element.setAttribute(prop, value.toString());
+                        if (value === true) // if simple true
+                            dom_element.setAttribute(prop, prop);
+                        else if (typeof value === 'string' && value != null) // if string
+                            dom_element.setAttribute(prop, value);
+                        else if (value !== false && value != null) // something else
+                            dom_element.setAttribute(prop, value.toString());
                     }
                 }
             }
@@ -181,7 +187,6 @@ function createElement(type = 'div', attributes = {}, ...children) {
 
 }
 
-
 function createRef() {
     var refObject = {
         current: null
@@ -191,7 +196,6 @@ function createRef() {
 
     return refObject;
 }
-
 
 function Render(element, target) {
     if (!element instanceof AbstractElement) throw new Error('Element is not instance of AbstractElement');
@@ -203,7 +207,7 @@ function Render(element, target) {
     } else {
         target.append(...[element]);
     }
-    
+
 }
     
 export {
