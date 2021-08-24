@@ -76,14 +76,16 @@
 
             if (!this.__initialized) return;
             //console.debug('[ELX] Update element (->) : ', this.__root);
-            
+
             if (this.shouldComponentUpdate(props, state)) {
                 this.state = state;
                 const new_element = element || this.create.call(this);
                 this.__root && this.__root.replaceWith(new_element);
                 this.__root = (new_element);
+                return true;
             }
             //console.debug('[ELX] Update element (<-) : ', this.__root);
+            return false;
         }
 
         _mountElement() {
