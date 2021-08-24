@@ -4,11 +4,11 @@
  * Copyright (c) TJMC-Company, Inc. and its affiliates. All Rights Reserved.
  * 
  * Created for TJMC-Company, Inc. by MakAndJo
-*/
+ */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
         typeof define === 'function' && define.amd ? define(['exports'], factory) :
-            (global = global || self, factory(global.GreenTree = {}));
+        (global = global || self, factory(global.GreenTree = {}));
 }(this, (function (exports) {
     'use strict';
 
@@ -70,14 +70,14 @@
         /**
          * Update Element method
          */
-        _updateElement(element = null, props = null, state = null) {
+        _updateElement(element = null, props = null, state = null, force = false) {
             props = props || this.__props;
             state = state || this.state;
 
             if (!this.__initialized) return;
             //console.debug('[ELX] Update element (->) : ', this.__root);
 
-            if (this.shouldComponentUpdate(props, state)) {
+            if (this.shouldComponentUpdate(props, state) || force) {
                 this.state = state;
                 const new_element = element || this.create.call(this);
                 this.__root && this.__root.replaceWith(new_element);
@@ -104,7 +104,7 @@
             );
         }
 
-        componentDidMount() { }
+        componentDidMount() {}
 
         /**
          * Get element props (Object)
@@ -213,7 +213,7 @@
         }
 
     }
-    
+
     exports.AbstractElement = AbstractElement;
     exports.createElement = createElement;
     exports.createRef = createRef;

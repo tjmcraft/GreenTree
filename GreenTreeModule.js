@@ -66,14 +66,14 @@ class AbstractElement {
     /**
      * Update Element method
      */
-    _updateElement(element = null, props = null, state = null) {
+    _updateElement(element = null, props = null, state = null, force = false) {
         props = props || this.__props;
         state = state || this.state;
 
         if (!this.__initialized) return;
         //console.debug('[ELX] Update element (->) : ', this.__root);
 
-        if (this.shouldComponentUpdate(props, state)) {
+        if (this.shouldComponentUpdate(props, state) || force) {
             this.state = state;
             const new_element = element || this.create.call(this);
             this.__root && this.__root.replaceWith(new_element);
@@ -87,11 +87,12 @@ class AbstractElement {
     _mountElement() {
         (this.__root = this.create.call(this)) &&
         (this.__initialized = true) &&
-        (this._updateElement(this.__root)) &&
+        (this._updateElement(this.__root, null, null, true)) &&
         (this.componentDidMount.call(this));
     }
 
     shouldComponentUpdate(nextProps, nextState) {
+    
         //console.debug('shouldComponentUpdate:', JSON.stringify(this.__props) != JSON.stringify(nextProps), '+', JSON.stringify(this.state) != JSON.stringify(nextState), '->', (JSON.stringify(this.__props) != JSON.stringify(nextProps) || JSON.stringify(this.state) != JSON.stringify(nextState)))
         //console.debug('shouldComponentUpdate:', '\nProps:', this.__props, '\nNextProps:', nextProps, '\nState:', this.state, '\nNextState:', nextState,)
         return (
