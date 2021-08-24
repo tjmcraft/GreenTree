@@ -139,7 +139,7 @@
      */
     function createElement(type = 'div', attributes = {}, ...children) {
         const ignoredProps = ['children', 'ref'];
-        attributes = attributes || {};
+        attributes = attributes ?? {};
         let element_instance = null;
 
         if (typeof type === 'string') {
@@ -189,6 +189,80 @@
 
     }
 
+    const RESERVED_PROPS = ['children', 'ref'];
+    const GREEN_ELEMENT_TYPE = Symbol('green.element');
+
+    var GreenElement = function (type, key, ref, self, source, owner, props) {
+        let element = {
+            $$typeof: GREEN_ELEMENT_TYPE,
+            type: type,
+            key: key,
+            ref: ref,
+            props: props,
+            _owner: owner
+        };
+        {
+            element._store = {};
+
+            Object.defineProperty(element._store, 'validated', {
+                configurable: false,
+                enumerable: false,
+                writable: true,
+                value: false
+            });
+
+            Object.defineProperty(element, '_self', {
+                configurable: false,
+                enumerable: false,
+                writable: false,
+                value: self
+            });
+
+            Object.defineProperty(element, '_source', {
+                configurable: false,
+                enumerable: false,
+                writable: false,
+                value: source
+            });
+        }
+        return element;
+    }
+
+    function createElement2(type, attributes, children) {
+        var propName;
+
+        var props = {};
+        var key = null;
+        var ref = null;
+        var self = null;
+        var source = null;
+
+        if (attributes != null) {
+            for (propName in attributes) {
+                if (attributes.hasOwnProperty(propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
+                    props[propName] = attributes[propName];
+                }
+            }
+        }
+
+        var childrenLength = arguments.length - 2;
+
+        if (childrenLength === 1) {
+            props.children = children;
+        } else if (childrenLength > 1) {
+            var childArray = Array(childrenLength);
+            for (var i = 0; i < childArray.length; i++) {
+                childArray[i] = arguments[i + 2];
+            }
+            {
+                Object.freeze && Object.freeze(childArray);
+            }
+            props.children = childArray;
+        }
+
+        return GreenElement(type, key, ref, self, source, null, props);
+    }
+
     function createRef() {
         var refObject = {
             current: null
@@ -214,6 +288,7 @@
     
     exports.AbstractElement = AbstractElement;
     exports.createElement = createElement;
+    exports.createElement2 = createElement2;
     exports.createRef = createRef;
     exports.Render = Render;
 })));
