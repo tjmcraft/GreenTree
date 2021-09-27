@@ -1,0 +1,27 @@
+{
+  "name": "@tjmc/greentree",
+  "version": "1.0.0",
+  "description": "A simple UI Library on JS",
+  "main": "index.js",
+  "private": false,
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tjmcraft/GreenTree.git"
+  },
+  "keywords": [
+    "JS",
+    "UI"
+  ],
+  "author": "MakAndJo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tjmcraft/GreenTree/issues"
+  },
+  "homepage": "https://github.com/tjmcraft/GreenTree#readme"
+}
