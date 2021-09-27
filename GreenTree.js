@@ -265,6 +265,10 @@
         return GreenElement(type, key, ref, self, source, null, props);
     }
 
+    function render(element, container, callback) {
+        
+    }
+
     function createRef() {
         var refObject = {
             current: null
@@ -293,4 +297,5 @@
     exports.createElement2 = createElement2;
     exports.createRef = createRef;
     exports.Render = Render;
+    exports.render = render;
 })));
