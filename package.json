@@ -24,8 +24,5 @@
   "bugs": {
     "url": "https://github.com/tjmcraft/GreenTree/issues"
   },
-  "homepage": "https://github.com/tjmcraft/GreenTree#readme",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  }
+  "homepage": "https://github.com/tjmcraft/GreenTree#readme"
 }
