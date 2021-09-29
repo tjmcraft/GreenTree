@@ -1,6 +1,6 @@
 {
-  "name": "@tjmc/greentree",
-  "version": "1.0.0",
+  "name": "@tjmcraft/greentree",
+  "version": "0.0.5",
   "description": "A simple UI Library on JS",
   "main": "index.js",
   "private": false,
@@ -8,7 +8,8 @@
     "example": "example"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -23,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/tjmcraft/GreenTree/issues"
   },
-  "homepage": "https://github.com/tjmcraft/GreenTree#readme"
+  "homepage": "https://github.com/tjmcraft/GreenTree#readme",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
 }
