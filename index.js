@@ -146,10 +146,7 @@ function createElement(type = 'div', attributes = {}, ...children) {
         }));
         //element_instance.type = type;
         element_instance.create = function () {
-            if (type.toLowerCase() == "svg")
-                const dom_element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            else
-                const dom_element = document.createElement(type);
+            const dom_element = document.createElement(type);
             for (const prop in this.props) {
                 if (prop && this.props.hasOwnProperty(prop) && !ignoredProps.includes(prop)) {
                     let value = this.props[prop]
