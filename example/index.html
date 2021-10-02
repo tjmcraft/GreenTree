@@ -1,8 +1,10 @@
 <html>
     <head>
         <title>GreenTree Test</title>
-        <script crossorigin src="https://cdn.jsdelivr.net/gh/tjmcraft/GreenTree@0.0.3/GreenTree.js"></script>
-        <script crossorigin src="https://cdn.jsdelivr.net/gh/tjmcraft/GreenTree@0.0.3/ElementEx.js"></script>
+        <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+        <script src="../dist/GreenTree.js"></script>
+        <script src="../ElementEx.js"></script>
     </head>
     <body>
         <div id="app-mount"></div>
@@ -27,7 +29,14 @@
                         GreenTree.createElement(Clock)
                     )
                 );
-            GreenTree.Render(elements, document.getElementById('app-mount'));
+
+            const element = GreenTree.createElement2('div', {class: 'one'},
+                GreenTree.createElement2('div', {class: 'two'}, 'text')
+            )
+
+            console.debug(element)
+            
+            //GreenTree.Render(element, document.getElementById('app-mount'));
         </script>
     </body>
 </html>
