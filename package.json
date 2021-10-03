@@ -1,6 +1,6 @@
 {
   "name": "@tjmcraft/greentree",
-  "version": "0.0.55",
+  "version": "0.0.56",
   "description": "A simple UI Library on JS",
   "main": "dist/index.js",
   "files": [
