@@ -7,7 +7,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, "dist"),
-        filename: 'GreenTree.js',
+        filename: 'index.js',
         library: 'GreenTree',
         libraryTarget: 'umd',
         globalObject: 'this',
