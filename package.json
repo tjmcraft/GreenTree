@@ -1,6 +1,6 @@
 {
   "name": "@tjmcraft/greentree",
-  "version": "0.0.58",
+  "version": "0.0.54",
   "description": "A simple UI Library on JS",
   "main": "dist/index.js",
   "files": [
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "publish": "npm version patch && npm publish --access public"
+    "push": "npm version patch && npm publish --access public"
   },
   "repository": {
     "type": "git",
