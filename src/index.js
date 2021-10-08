@@ -136,7 +136,7 @@ class AbstractElement {
  * @returns {Element} instance of element
  */
 function createElement(type = 'div', attributes = {}, ...children) {
-    const ignoredProps = ['children', 'ref'];
+    const ignoredProps = ['children', 'ref', 'unsafeHTML'];
     attributes = attributes ?? {};
     let element_instance = null;
 
@@ -167,7 +167,9 @@ function createElement(type = 'div', attributes = {}, ...children) {
                 }
             }
             for (const child of this.props.children) {
-                if (child && child != null) dom_element.append(child);
+                if (child && child != null)
+                    if (!attributes.unsafeHTML) dom_element.append(child);
+                    else dom_element.innerHTML += child;
             }
             return dom_element;
         }
