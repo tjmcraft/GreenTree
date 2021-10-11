@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
     target: 'web',
@@ -7,7 +8,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, "dist"),
-        filename: 'index.js',
+        filename: '[name].js',
         library: 'GreenTree',
         libraryTarget: 'umd',
         globalObject: 'this',
@@ -15,6 +16,13 @@ module.exports = {
         clean: true,
     },
     mode: "development",
+    resolve: {
+        extensions: [".js"]
+    },
+    devtool: "source-map",
+    plugins: [
+        
+    ],
     module: {
         rules: [
             {
