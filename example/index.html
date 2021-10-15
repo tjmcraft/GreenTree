@@ -8,36 +8,6 @@
     </head>
     <body>
         <div id="app-mount"></div>
-        <script>
-            class Clock extends GreenTree.AbstractElement {
-                constructor (props) {
-                    super(props);
-                    this.state = {date: new Date().toUTCString()};
-                    setInterval(() => this.tick(), 1000);
-                }
-                tick () {
-                    this.setState({date: new Date().toUTCString()});
-                }
-                create() {
-                    return GreenTree.createElement('div', { class: ['clock'] }, `${this.state.date}`);
-                }
-            }
-
-            const elements = 
-                GreenTree.createElement('root', null,
-                    GreenTree.createElement('span', { class: ['first','second'], customProperty: 'lol' },
-                        GreenTree.createElement(Clock)
-                    )
-                );
-
-            const element = GreenTree.createElement2('div', {class: 'one'},
-                GreenTree.createElement2('div', {class: 'two'}, 'text')
-            )
-
-            console.debug(element)
-            console.debug(elements)
-            
-            //GreenTree.Render(element, document.getElementById('app-mount'));
-        </script>
     </body>
+    <script type="text/javascript" src="./index.js"></script>
 </html>
