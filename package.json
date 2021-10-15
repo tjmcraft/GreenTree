@@ -11,8 +11,11 @@
     "example": "example"
   },
   "scripts": {
-    "build": "webpack --mode production",
-    "push": "npm version patch && npm publish --access public"
+    "watch:dev": "npx webpack watch --mode development",
+    "start:dev": "npx webpack serve --mode development",
+    "build:dev": "npx webpack --mode development",
+    "build:prod": "npx webpack --mode production",
+    "dist:publish": "npm version patch && npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -35,7 +38,9 @@
     "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "^7.15.6",
     "babel-loader": "^8.2.2",
+    "html-webpack-plugin": "^5.4.0",
     "webpack": "^5.56.0",
-    "webpack-cli": "^4.8.0"
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^4.3.1"
   }
 }
