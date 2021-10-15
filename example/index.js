@@ -13,12 +13,16 @@ class Clock extends GreenTree.AbstractElement {
     }
 }
 
+let ref_test = {};
+
 const element = 
-    GreenTree.createElement('root', null,
+    GreenTree.createElement('root', {ref: ref_test},
         GreenTree.createElement('span', { class: ['first','second'], customProperty: 'lol' },
             GreenTree.createElement(Clock, null, GreenTree.createElement('span'), GreenTree.createElement('img'))
         )
     );
+
+console.debug('REF:', ref_test)
 
 /*const element2 = GreenTree.createElement2('div', {class: 'one'},
     GreenTree.createElement2('div', {class: 'two'}, 'text'),
