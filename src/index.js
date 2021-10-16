@@ -116,7 +116,7 @@ class AbstractElement {
      */
     get content() {
         if (!this.#initialized || !this.#root) this._mountElement.call(this);
-        return this.#root
+        return this.#root;
     }
 
     /**
@@ -215,13 +215,16 @@ function createElement(type = "div", attributes = null, children = null) {
         element_instance = new type(props);
     }
 
-    if (ref) {
-        if (typeof ref === 'function') ref.call(this, element_instance.content)
-        else if (typeof ref === 'object') ref.current = element_instance.content
-        //else if (typeof attributes.ref === 'string') this.refs[attributes.ref] = element_instance.content
-    }
+    if (element_instance) {
+        if (ref) {
+            if (typeof ref === 'function') ref.call(this, element_instance.content)
+            else if (typeof ref === 'object') ref.current = element_instance.content
+            //else if (typeof attributes.ref === 'string') this.refs[attributes.ref] = element_instance.content
+        }
 
-    return element_instance.content;
+        return element_instance.content;
+    }
+    return null;
 
 }
 
