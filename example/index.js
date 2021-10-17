@@ -14,12 +14,24 @@ class Clock extends GreenTree.AbstractElement {
     }
 }
 
+class ParamContainer extends GreenTree.AbstractElement {
+    constructor(props) {
+        super(props);
+    }
+    create() {
+        return (
+            GreenTree.createElement(Clock, { cust: 'green' }, GreenTree.createElement('span'), GreenTree.createElement('img'))
+        )
+    }
+}
+
 let ref_test = {};
 
 const element = 
     GreenTree.createElement('root', {ref: ref_test},
         GreenTree.createElement('span', { class: ['first','second'], customProperty: 'lol' },
-            GreenTree.createElement(Clock, { cust: 'green' }, GreenTree.createElement('span'), GreenTree.createElement('img'))
+            GreenTree.createElement(ParamContainer, null),
+            GreenTree.createElement('span', { unsafeHTML: true }, "<a>hello</a>")
         )
     );
 
