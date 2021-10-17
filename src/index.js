@@ -142,11 +142,13 @@ function createElement(type = "div", attributes = null, children = null) {
     var ref = null;
     var self = null;
     var source = null;
+    var unsafeHTML = false;
 
     if (attributes != null) {
         if (hasValidRef(attributes)) {
             ref = attributes.ref;
         }
+        unsafeHTML = attributes.unsafeHTML === true;
         for (propName in attributes) {
             if (attributes.hasOwnProperty(propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
                 props[propName] = attributes[propName];
@@ -202,12 +204,12 @@ function createElement(type = "div", attributes = null, children = null) {
             if (Array.isArray(this.props.children))
                 for (const child of this.props.children) {
                     if (child && child != null)
-                        if (!props.unsafeHTML) dom_element.append(child);
+                        if (!unsafeHTML) dom_element.append(child);
                         else dom_element.innerHTML += child;
                 }
             else 
                 if (this.props.children && this.props.children != null)
-                    if (!props.unsafeHTML) dom_element.append(this.props.children);
+                    if (!unsafeHTML) dom_element.append(this.props.children);
                     else dom_element.innerHTML += this.props.children;
             return dom_element;
         }
@@ -221,15 +223,16 @@ function createElement(type = "div", attributes = null, children = null) {
             else if (typeof ref === 'object') ref.current = element_instance.content
             //else if (typeof attributes.ref === 'string') this.refs[attributes.ref] = element_instance.content
         }
-
         return element_instance.content;
+    } else {
+        console.warn('[GreenTree]', 'Your element is not generated!');
     }
     return null;
 
 }
 
 var hasOwnProperty$1 = Object.prototype.hasOwnProperty;
-const RESERVED_PROPS = { children: true, ref: true, unsafeHTML: true};
+const RESERVED_PROPS = { children: true, ref: true, unsafeHTML: true };
 const GREEN_ELEMENT_TYPE = Symbol('green.element');
 
 function hasValidRef(config) {
