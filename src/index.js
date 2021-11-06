@@ -325,7 +325,60 @@ function createElement2(type, attributes, children) {
 }
 
 function render(element, container, callback) {
+    if (element.$$typeof !== GREEN_ELEMENT_TYPE) {
+        console.warn("Element is not a GreenElement!");
+        return;
+    }
+    const root$1 = legacyRender(null, element, container, false, callback);
+    container.append(root$1.dom_e);
+    window.root$1 = root$1;
+    return root$1;
+}
 
+function legacyRender(parentComponent, children, container, forceHydrate, callback) {
+    const dom_element = document.createElement(children.type);
+    children.dom_e = dom_element;
+    if (children.props) {
+        console.debug("Props:", children.props);
+        setProps(dom_element, children.props);
+        if (Array.isArray(children.props.children)) {
+            children.props.children.forEach(child => legacyRender(children, child, null, null));
+        }
+        if (Array.isArray(children.props.children))
+            for (const child of children.props.children) {
+                if (child && child != null)
+                    if (!children.props.unsafeHTML) dom_element.append(child.dom_e);
+                    else dom_element.innerHTML += child.dom_e;
+            }
+        else
+            if (children.props.children && children.props.children != null)
+                if (!children.props.unsafeHTML) dom_element.append(children.props.children);
+                else dom_element.innerHTML += children.props.children;
+    }
+    return children;
+}
+
+function setProps(element, props) {
+    if (props) for (const prop in props) {
+        if (prop && props.hasOwnProperty(prop) && !RESERVED_PROPS.hasOwnProperty(prop)) {
+            let value = props[prop]
+            if (value instanceof Object) {
+                if (value instanceof Array) // if array
+                    element.setAttribute(prop, value.filter(e => e).join(' '));
+                else if (typeof value === 'function' && value != null) // if function
+                    element[prop] = value;
+                else Object.assign(element[prop], value);
+            } else {
+                if (value === true) // if simple true
+                    element.setAttribute(prop, prop);
+                else if (typeof value === 'string' && value != null) // if string
+                    element.setAttribute(prop, value);
+                else if (value !== false && value != null) // something else
+                    element.setAttribute(prop, value.toString());
+            }
+        }
+    }
+    return !!1;
 }
 
 function createRef() {
