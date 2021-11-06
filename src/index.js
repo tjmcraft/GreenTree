@@ -143,12 +143,14 @@ function createElement(type = "div", attributes = null, children = null) {
     var self = null;
     var source = null;
     var unsafeHTML = false;
+    var namespaceURI = null;
 
     if (attributes != null) {
         if (hasValidRef(attributes)) {
             ref = attributes.ref;
         }
         unsafeHTML = attributes.unsafeHTML === true;
+        namespaceURI = attributes.ns;
         for (propName in attributes) {
             if (attributes.hasOwnProperty(propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
                 props[propName] = attributes[propName];
@@ -179,7 +181,14 @@ function createElement(type = "div", attributes = null, children = null) {
         element_instance.type = type;
         element_instance.create = function () {
 
-            const dom_element = document.createElement(type);
+            let dom_element;
+
+            if (namespaceURI) {
+                console.debug('Creating element with ns:', namespaceURI)
+                dom_element = document.createElementNS(namespaceURI, type);
+            } else {
+                dom_element = document.createElement(type);
+            }
 
             if (this.props) for (const prop in this.props) {
                 if (prop && this.props.hasOwnProperty(prop) && !RESERVED_PROPS.hasOwnProperty(prop)) {
@@ -232,7 +241,7 @@ function createElement(type = "div", attributes = null, children = null) {
 }
 
 var hasOwnProperty$1 = Object.prototype.hasOwnProperty;
-const RESERVED_PROPS = { children: true, ref: true, unsafeHTML: true };
+const RESERVED_PROPS = { children: true, ref: true, unsafeHTML: true, ns: true };
 const GREEN_ELEMENT_TYPE = Symbol('green.element');
 
 function hasValidRef(config) {
