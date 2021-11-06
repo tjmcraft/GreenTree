@@ -336,24 +336,28 @@ function render(element, container, callback) {
 }
 
 function legacyRender(parentComponent, children, container, forceHydrate, callback) {
-    const dom_element = document.createElement(children.type);
-    children.dom_e = dom_element;
-    if (children.props) {
-        console.debug("Props:", children.props);
-        setProps(dom_element, children.props);
-        if (Array.isArray(children.props.children)) {
-            children.props.children.forEach(child => legacyRender(children, child, null, null));
-        }
-        if (Array.isArray(children.props.children))
-            for (const child of children.props.children) {
-                if (child && child != null)
-                    if (!children.props.unsafeHTML) dom_element.append(child.dom_e);
-                    else dom_element.innerHTML += child.dom_e;
+    if (children.$$typeof == GREEN_ELEMENT_TYPE) {
+        const dom_element = document.createElement(children.type);
+        children.dom_e = dom_element;
+        if (children.props) {
+            console.debug("Props:", children.props);
+            setProps(dom_element, children.props);
+            if (Array.isArray(children.props.children)) {
+                children.props.children.forEach(child => legacyRender(children, child, null, null));
             }
-        else
-            if (children.props.children && children.props.children != null)
-                if (!children.props.unsafeHTML) dom_element.append(children.props.children);
-                else dom_element.innerHTML += children.props.children;
+            if (Array.isArray(children.props.children))
+                for (const child of children.props.children) {
+                    if (child && child != null)
+                        if (!children.props.unsafeHTML) dom_element.append(child.dom_e || child);
+                        else dom_element.innerHTML += child;
+                }
+            else
+                if (children.props.children && children.props.children != null)
+                    if (!children.props.unsafeHTML) dom_element.append(children.props.children);
+                    else dom_element.innerHTML += children.props.children;
+        }
+    } else {
+        console.debug("Invalid:", children)
     }
     return children;
 }

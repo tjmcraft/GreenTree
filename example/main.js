@@ -41,7 +41,7 @@ const element =
 console.debug('Ref:', ref_test)
 
 const element2 = GreenTree.createElement2('div', {class: 'one'},
-    GreenTree.createElement2('div', {class: 'two'}, 'text'),
+    GreenTree.createElement2('div', {class: 'two'}, 'text', 'textd'),
     GreenTree.createElement2('div', {class: 'twosep'}, 'text2')
 )
 
