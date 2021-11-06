@@ -48,4 +48,5 @@ const element2 = GreenTree.createElement2('div', {class: 'one'},
 console.debug('Element:', element)
 console.debug('AltDom:', element2)
 
-GreenTree.Render(element, document.getElementById('app-mount'));
+//GreenTree.Render(element, document.getElementById('app-mount'));
+console.debug(GreenTree.render(element2, document.getElementById('app-mount')));
