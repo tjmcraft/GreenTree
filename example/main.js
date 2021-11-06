@@ -49,4 +49,4 @@ console.debug('Element:', element)
 console.debug('AltDom:', element2)
 
 //GreenTree.Render(element, document.getElementById('app-mount'));
-console.debug(GreenTree.render(element2, document.getElementById('app-mount')));
+GreenTree.render(element2, document.getElementById('app-mount'));
