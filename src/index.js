@@ -184,7 +184,6 @@ function createElement(type = "div", attributes = null, children = null) {
             let dom_element;
 
             if (namespaceURI) {
-                console.debug('Creating element with ns:', namespaceURI)
                 dom_element = document.createElementNS(namespaceURI, type);
             } else {
                 dom_element = document.createElement(type);
@@ -248,7 +247,6 @@ function hasValidRef(config) {
     {
         if (hasOwnProperty$1.call(config, 'ref')) {
             var getter = Object.getOwnPropertyDescriptor(config, 'ref').get;
-            console.debug('Getter:', getter);
             if (getter && getter.isGreenWarning) {
                 return false;
             }
