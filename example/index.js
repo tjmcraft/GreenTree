@@ -31,18 +31,21 @@ const element =
     GreenTree.createElement('root', {ref: ref_test},
         GreenTree.createElement('span', { class: ['first','second'], customProperty: 'lol' },
             GreenTree.createElement(ParamContainer, null),
-            GreenTree.createElement('span', { unsafeHTML: true }, "<a>hello</a>")
+            GreenTree.createElement('span', { unsafeHTML: true }, "<a>hello</a>"),
+            GreenTree.createElement('svg', { ns: 'http://www.w3.org/2000/svg' },
+                GreenTree.createElement('circle', { ns: 'http://www.w3.org/2000/svg', cx: 50, cy: 50, r: 10, fill: "red"})
+            )
         )
     );
 
-console.debug('REF:', ref_test)
+console.debug('Ref:', ref_test)
 
 /*const element2 = GreenTree.createElement2('div', {class: 'one'},
     GreenTree.createElement2('div', {class: 'two'}, 'text'),
     GreenTree.createElement2('div', {class: 'twosep'}, 'text2')
 )*/
 
-console.debug('stable:', element)
+console.debug('Element:', element)
 //console.debug('new:', element2)
 
 GreenTree.Render(element, document.getElementById('app-mount'));
