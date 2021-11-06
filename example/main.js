@@ -40,12 +40,12 @@ const element =
 
 console.debug('Ref:', ref_test)
 
-/*const element2 = GreenTree.createElement2('div', {class: 'one'},
+const element2 = GreenTree.createElement2('div', {class: 'one'},
     GreenTree.createElement2('div', {class: 'two'}, 'text'),
     GreenTree.createElement2('div', {class: 'twosep'}, 'text2')
-)*/
+)
 
 console.debug('Element:', element)
-//console.debug('new:', element2)
+console.debug('AltDom:', element2)
 
 GreenTree.Render(element, document.getElementById('app-mount'));
