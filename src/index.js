@@ -221,8 +221,14 @@ function createElement(type = "div", attributes = null, children = null) {
                     else dom_element.innerHTML += this.props.children;
             return dom_element;
         }
+        //console.debug('StringEl:', element_instance);
     } else if (type.__proto__ === AbstractElement) {
         element_instance = new type(props);
+        //console.debug('AbstractEl:', element_instance);
+    } else if (typeof type === 'function') {
+        element_instance = new AbstractElement(props);
+        element_instance.create = type;
+        //console.debug('FunctionEl:', element_instance);
     }
 
     if (element_instance.content) {
