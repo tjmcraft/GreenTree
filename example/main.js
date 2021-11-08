@@ -14,7 +14,7 @@ class Clock extends GreenTree.AbstractElement {
     }
 }
 
-class ParamContainer extends GreenTree.AbstractElement {
+class ClassElement extends GreenTree.AbstractElement {
     constructor(props) {
         super(props);
     }
@@ -25,28 +25,37 @@ class ParamContainer extends GreenTree.AbstractElement {
     }
 }
 
+const var_element = GreenTree.createElement('div', {class:'var-element'}, 'var element')
+
+const function_element = function (props) {
+    return GreenTree.createElement('div', { class: 'function-element' }, 'function element');
+}
+
 let ref_test = {};
 
 const element = 
     GreenTree.createElement('root', {ref: ref_test},
         GreenTree.createElement('span', { class: ['first','second'], customProperty: 'lol' },
-            GreenTree.createElement(ParamContainer, null),
-            GreenTree.createElement('span', { unsafeHTML: true }, "<a>hello</a>"),
-            GreenTree.createElement('svg', { ns: 'http://www.w3.org/2000/svg' },
+            GreenTree.createElement(ClassElement), // Class Element
+            GreenTree.createElement('span', { unsafeHTML: true }, "<a>hello</a>"), // Raw HTML Element
+            GreenTree.createElement('svg', { ns: 'http://www.w3.org/2000/svg' }, // SVG Element
                 GreenTree.createElement('circle', { ns: 'http://www.w3.org/2000/svg', cx: 50, cy: 50, r: 10, fill: "red"})
-            )
+            ),
+            var_element, // Variable Element
+            GreenTree.createElement(function_element), // Function Element
         )
     );
 
 console.debug('Ref:', ref_test)
-
-const element2 = GreenTree.createElement2('div', {class: 'one'},
-    GreenTree.createElement2('div', {class: 'two'}, 'text', 'textd'),
-    GreenTree.createElement2('div', {class: 'twosep'}, 'text2')
-)
-
 console.debug('Element:', element)
-console.debug('AltDom:', element2)
 
-//GreenTree.Render(element, document.getElementById('app-mount'));
-GreenTree.render(element2, document.getElementById('app-mount'));
+GreenTree.Render(element, document.getElementById('app-mount'));
+
+if (!!0) {
+    const element2 = GreenTree.createElement2('div', { class: 'one' },
+        GreenTree.createElement2('div', { class: 'two' }, 'text', 'textd'),
+        GreenTree.createElement2('div', { class: 'twosep' }, 'text2')
+    );
+    console.debug('AltDom:', element2);
+    GreenTree.render(element2, document.getElementById('app-mount'));
+}
