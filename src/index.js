@@ -225,7 +225,7 @@ function createElement(type = "div", attributes = null, children = null) {
         element_instance = new type(props);
     }
 
-    if (element_instance) {
+    if (element_instance.content) {
         if (ref) {
             if (typeof ref === 'function') ref.call(this, element_instance.content)
             else if (typeof ref === 'object') ref.current = element_instance.content
