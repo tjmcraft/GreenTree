@@ -50,7 +50,7 @@ class AbstractElement {
     /**
      * Create Element method
      */
-    create() {
+    create(props = {}) {
         return document.createElement('div');
     }
 
@@ -66,7 +66,7 @@ class AbstractElement {
     /**
      * Update Element method
      */
-    _updateElement(element = null, props = null, state = null, force = false) {
+    _updateElement(element = null, props = {}, state = {}, force = false) {
         props = props || this.#props;
         state = state || this.state;
 
@@ -75,7 +75,7 @@ class AbstractElement {
 
         if (this.shouldComponentUpdate(props, state) || force) {
             this.state = state;
-            const new_element = element || this.create.call(this);
+            const new_element = element || this.create.call(this, props);
             this.#root && this.#root.replaceWith(new_element);
             this.#root = (new_element);
             return true;
@@ -85,9 +85,9 @@ class AbstractElement {
     }
 
     _mountElement() {
-        (this.#root = this.create.call(this)) &&
+        (this.#root = this.create.call(this, this.props)) &&
         (this.#initialized = true) &&
-        (this._updateElement(this.#root, null, null, true)) &&
+        (this._updateElement(this.#root, null, this.props, true)) &&
         (this.componentDidMount.call(this));
     }
 
