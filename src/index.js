@@ -178,7 +178,7 @@ function createElement(type = "div", attributes = null, children = null) {
     if (typeof type === 'string') {
 
         element_instance = new AbstractElement(props);
-        element_instance.type = type;
+        //element_instance.type = type;
         element_instance.create = function () {
 
             let dom_element;
