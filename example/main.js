@@ -25,6 +25,16 @@ class ClassElement extends GreenTree.AbstractElement {
     }
 }
 
+class ClassElementWithProps extends GreenTree.AbstractElement {
+    constructor(props) {
+        super(props);
+        console.debug('ClassElementWithProps:', this)
+    }
+    create() {
+        return this.props.children;
+    }
+}
+
 const var_element = GreenTree.createElement('div', {class:'var-element'}, 'var element')
 
 const function_element = function (props) {
@@ -34,9 +44,12 @@ const function_element = function (props) {
 let ref_test = {};
 
 const element = 
-    GreenTree.createElement('root', {ref: ref_test},
-        GreenTree.createElement('span', { class: ['first','second'], customProperty: 'lol' },
+    GreenTree.createElement('root', { ref: ref_test }, // Ref test
+        GreenTree.createElement('span', { class: ['first','second'], customProperty: 'lol' }, // Element with custom property
             GreenTree.createElement(ClassElement), // Class Element
+            GreenTree.createElement(ClassElementWithProps, { prop: 1 }, ["Child1", "Child2"]), // Empty Class
+            ["Child1", "Child2"], // Array Element
+            null, // Null Element
             GreenTree.createElement('span', { unsafeHTML: true }, "<a>hello</a>"), // Raw HTML Element
             GreenTree.createElement('svg', { ns: 'http://www.w3.org/2000/svg' }, // SVG Element
                 GreenTree.createElement('circle', { ns: 'http://www.w3.org/2000/svg', cx: 50, cy: 50, r: 10, fill: "red"})
