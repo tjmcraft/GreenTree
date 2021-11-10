@@ -87,7 +87,7 @@ class AbstractElement {
     _mountElement() {
         (this.#root = this.create.call(this, this.props)) &&
         (this.#initialized = true) &&
-        (this._updateElement(this.#root, null, this.props, true)) &&
+        (this._updateElement(this.#root, this.props, null, true)) &&
         (this.componentDidMount.call(this));
     }
 
