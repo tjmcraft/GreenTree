@@ -76,7 +76,9 @@ class AbstractElement {
         if (this.shouldComponentUpdate(props, state) || force) {
             this.state = state;
             const new_element = element || this.create.call(this, props);
-            this.#root && this.#root.replaceWith(new_element);
+            if (new_element instanceof HTMLElement) {
+                this.#root && this.#root.replaceWith(new_element);
+            }
             this.#root = (new_element);
             return true;
         }
