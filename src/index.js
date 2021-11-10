@@ -211,16 +211,16 @@ function createElement(type = "div", attributes = null, children = null) {
                 }
             }
 
-            if (Array.isArray(this.props.children))
-                for (const child of this.props.children) {
-                    if (child && child != null)
+            if (this.props.children) {
+                Array.of(this.props.children)
+                    .flat(Infinity)
+                    .filter(e => e)
+                    .forEach(child => {
                         if (!unsafeHTML) dom_element.append(child);
                         else dom_element.innerHTML += child;
-                }
-            else 
-                if (this.props.children && this.props.children != null)
-                    if (!unsafeHTML) dom_element.append(this.props.children);
-                    else dom_element.innerHTML += this.props.children;
+                    });
+            }
+                
             return dom_element;
         }
         //console.debug('StringEl:', element_instance);
