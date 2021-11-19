@@ -69,27 +69,27 @@ function test_old() {
 }
 
 function test_new() {
-    class ClassElement extends GreenTree.Component {
+    class ClassElement extends GreenTree.AbstractElement {
         constructor(props) {
             super(props);
         }
         render() {
             return (
-                GreenTree.createElement2('span', { class: "span-element"}, "text child")
+                GreenTree.createElement('span', { class: "span-element"}, "text child")
             )
         }
     }
     function function_element(props) {
-        return GreenTree.createElement2('div', { class: "function-element" }, "function element");
+        return GreenTree.createElement('div', { class: "function-element" }, "function element");
     }
-    var element2 = GreenTree.createElement2('root', { class: 'one' },
-        GreenTree.createElement2('div', { class: 'two' }, 'text', 'textd'),
-        GreenTree.createElement2('div', { class: 'twosep' }, 'text2'),
-        GreenTree.createElement2(function_element),
-        GreenTree.createElement2(ClassElement),
+    var element2 = GreenTree.createElement('root', { class: 'one' },
+        GreenTree.createElement('div', { class: 'two' }, 'text', 'textd'),
+        GreenTree.createElement('div', { class: 'twosep' }, 'text2'),
+        GreenTree.createElement(function_element),
+        GreenTree.createElement(ClassElement),
     );
     console.debug('AltDom:', element2);
-    GreenTree.render(element2, app_mount);
+    GreenTree.Render(element2, app_mount);
 }
 
 //test_old();

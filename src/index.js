@@ -172,5 +172,4 @@ function createRef() {
 exports.AbstractElement = Component;
 exports.createElement = createElement;
 exports.createRef = createRef;
-exports.Render = Render;
-exports.render = render;
+exports.Render = render;
