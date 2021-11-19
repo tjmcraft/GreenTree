@@ -10,8 +10,12 @@
 
 const { GREEN_ELEMENT_TYPE } = require("./Types");
 
+function shouldConstruct$1(Component) {
+    var prototype = Component.prototype;
+    return !!(prototype && prototype.isGreenElement);
 }
 function isSimpleFunctionComponent(type) {
+    return typeof type === 'function' && !shouldConstruct$1(type) && type.defaultProps === undefined;
 }
 var hasOwnProperty$1 = Object.prototype.hasOwnProperty;
 const RESERVED_PROPS = { children: true, ref: true, unsafeHTML: true, ns: true };
@@ -28,8 +32,30 @@ function hasValidRef(config) {
     return config.ref !== undefined;
 }
 
+var emptyObject = {};
+
+{
+    Object.freeze(emptyObject);
+}
+  
+function Component(props, context, updater) {
+    this.props = props;
+    this.context = context;
+    this.refs = emptyObject;
+    this.updater = updater;
+}
+Component.prototype.isGreenElement = {};
+Component.prototype.setState = function (partialState) {
+    if (!(typeof partialState === 'object' || typeof partialState === 'function' || partialState == null)) {
+        {
+          throw Error( "setState(...): takes an object of state variables to update or a function which returns an object of state variables." );
+        }
+    }
+    //this.updater.enqueueSetState(this, partialState, callback, 'setState');
+}
+
 var GreenElement = function (type, key, ref, self, source, owner, props) {
-    let element = {
+    var element = {
         $$typeof: GREEN_ELEMENT_TYPE,
         type: type,
         key: key,
@@ -63,7 +89,7 @@ var GreenElement = function (type, key, ref, self, source, owner, props) {
     return element;
 }
 
-function createElement2(type, attributes, children) {
+function createElement(type, attributes, children) {
     var propName;
 
     var props = {};
@@ -102,37 +128,74 @@ function render(element, container, callback) {
         console.error("Element is not a GreenElement!");
         return;
     }
-    const root$1 = legacyRender(null, element, container, false, callback);
-    container.append(root$1.dom_e);
+    const root$1 = legacyRender(null, element, container, callback);
+    container.append(root$1);
     //window.root$1 = root$1;
     return root$1;
 }
 
-function legacyRender(parentComponent, children, container, forceHydrate, callback) {
-    if (children.$$typeof == GREEN_ELEMENT_TYPE) {
-        const dom_element = document.createElement(children.type);
-        children.dom_e = dom_element;
-        if (children.props) {
-            console.debug("Props:", children.props);
-            setProps(dom_element, children.props);
-            if (Array.isArray(children.props.children)) {
-                children.props.children.forEach(child => legacyRender(children, child, null, null));
-            }
-            if (Array.isArray(children.props.children))
-                for (const child of children.props.children) {
-                    if (child && child != null)
-                        if (!children.props.unsafeHTML) dom_element.append(child.dom_e || child);
-                        else dom_element.innerHTML += child;
-                }
-            else
-                if (children.props.children && children.props.children != null)
-                    if (!children.props.unsafeHTML) dom_element.append(children.props.children);
-                    else dom_element.innerHTML += children.props.children;
+function legacyCreateRootContainer(container) {
+    return;
+}
+
+function legacyRender(parentComponent, children, container, callback) {
+    if (container) {
+        var root = container._greentreeRootContainer;
+        if (!root) {
+            root = container._greentreeRootContainer = legacyCreateRootContainer(container);
         }
-    } else {
-        console.debug("Invalid:", children)
     }
-    return children;
+    if (typeof children === "object") {
+        if (children.$$typeof == GREEN_ELEMENT_TYPE) {
+            if (typeof children.type === "string") {
+                const dom_element = document.createElement(children.type);
+                //children.dom_e = dom_element;
+                if (children.props) {
+                    //console.debug("Props:", children.props);
+                    setProps(dom_element, children.props); // Set properties to DOM element
+                    if (Array.isArray(children.props.children)) {
+                        const root_c = children.props.children.map(child => legacyRender(children, child, null, null));
+                        for (const child of root_c) {
+                            if (child && child != null)
+                                if (!children.props.unsafeHTML) dom_element.append(child);
+                                else dom_element.innerHTML += child;
+                        }
+                    } else
+                        if (children.props.children && children.props.children != null)
+                            if (!children.props.unsafeHTML) dom_element.append(children.props.children);
+                            else dom_element.innerHTML += children.props.children;
+                }
+                console.debug("string comp:", dom_element)
+                return dom_element;
+            } else if (typeof children.type === "function") {
+                if (isSimpleFunctionComponent(children.type)) {
+                    //console.warn("Simple Function Component:", children);
+                    const root_a = children.type.call(this, children.props);
+                    const c = legacyRender(null, root_a, null);
+                    console.debug("function comp:", c);
+                    return c;
+                } else {
+                    //console.warn("Class Component:", children);
+                    const root_gc = renderComponent(children.type, children.props);
+                    const c = legacyRender(null, root_gc, null);
+                    console.debug("cls comp:", c);
+                    return c;
+                }
+            }
+        } else {
+            console.debug("Invalid:", children)
+        }
+    } else if (typeof children === "string") {
+        return children;
+    }
+    return null;
+}
+
+function renderComponent(Component, props) {
+    if (Component.prototype && typeof Component.prototype.render === 'function') {
+        const root_cm = new Component(props);
+        return root_cm.render();
+    }
 }
 
 const isValidProps = (props) => props != undefined && props != null && typeof props == "object";
