@@ -2,27 +2,6 @@
 
 const { GREEN_ELEMENT_TYPE, RESERVED_PROPS } = require("./Types");
 
-function shouldConstruct$1(Component) {
-    var prototype = Component.prototype;
-    return !!(prototype && prototype.isGreenElement);
-}
-function isSimpleFunctionComponent(type) {
-    return typeof type === 'function' && !shouldConstruct$1(type) && type.defaultProps === undefined;
-}
-var hasOwnProperty$1 = Object.prototype.hasOwnProperty;
-
-function hasValidRef(config) {
-    {
-        if (hasOwnProperty$1.call(config, 'ref')) {
-            var getter = Object.getOwnPropertyDescriptor(config, 'ref').get;
-            if (getter && getter.isGreenWarning) {
-                return false;
-            }
-        }
-    }
-    return config.ref !== undefined;
-}
-
 function createRef() {
     var refObject = { current: null };
     Object.seal(refObject);
