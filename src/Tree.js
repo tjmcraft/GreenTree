@@ -21,64 +21,46 @@ function hasValidRef(config) {
     return config.ref !== undefined;
 }
 
+const isValidProps = (props) => props != undefined && props != null && typeof props == "object";
+function setProps(element, props) {
+    if (!isValidProps(props)) {
+        console.warn("Invalid props:", props);
+        return !!0;
+    }
+    for (const prop in props) {
+        if (prop && props.hasOwnProperty(prop) && !RESERVED_PROPS.hasOwnProperty(prop)) {
+            let value = props[prop]
+            if (value instanceof Object) {
+                if (value instanceof Array) // if array
+                element.setAttribute(prop, value.filter(e => e).join(' '));
+                else if (typeof value === 'function' && value != null) // if function
+                element[prop] = value;
+                else Object.assign(element[prop], value);
+            } else {
+                if (value === true) // if simple true
+                element.setAttribute(prop, prop);
+                else if (typeof value === 'string' && value != null) // if string
+                element.setAttribute(prop, value);
+                else if (value !== false && value != null) // something else
+                element.setAttribute(prop, value.toString());
+            }
+        }
+    }
+    return !!1;
+}
+
 function isMounted(component) {}
 
 var classComponentUpdater = {
     isMounted: isMounted,
     enqueueSetState: function (inst, payload, callback) {
-        var fiber = get(inst);
-        var eventTime = requestEventTime();
-        var lane = requestUpdateLane(fiber);
-        var update = createUpdate(eventTime, lane);
-        update.payload = payload;
-
-        if (callback !== undefined && callback !== null) {
-            {
-                warnOnInvalidCallback(callback, 'setState');
-            }
-
-            update.callback = callback;
-        }
-
-        enqueueUpdate(fiber, update);
-        scheduleUpdateOnFiber(fiber, lane, eventTime);
+       
     },
     enqueueReplaceState: function (inst, payload, callback) {
-        var fiber = get(inst);
-        var eventTime = requestEventTime();
-        var lane = requestUpdateLane(fiber);
-        var update = createUpdate(eventTime, lane);
-        update.tag = ReplaceState;
-        update.payload = payload;
-
-        if (callback !== undefined && callback !== null) {
-            {
-                warnOnInvalidCallback(callback, 'replaceState');
-            }
-
-            update.callback = callback;
-        }
-
-        enqueueUpdate(fiber, update);
-        scheduleUpdateOnFiber(fiber, lane, eventTime);
+        
     },
     enqueueForceUpdate: function (inst, callback) {
-        var fiber = get(inst);
-        var eventTime = requestEventTime();
-        var lane = requestUpdateLane(fiber);
-        var update = createUpdate(eventTime, lane);
-        update.tag = ForceUpdate;
-
-        if (callback !== undefined && callback !== null) {
-            {
-                warnOnInvalidCallback(callback, 'forceUpdate');
-            }
-
-            update.callback = callback;
-        }
-
-        enqueueUpdate(fiber, update);
-        scheduleUpdateOnFiber(fiber, lane, eventTime);
+       
     }
 };
 
@@ -144,34 +126,6 @@ function renderComponent(Component, props) {
         const root_cm = new Component(props);
         return root_cm.render();
     }
-}
-
-const isValidProps = (props) => props != undefined && props != null && typeof props == "object";
-function setProps(element, props) {
-    if (!isValidProps(props)) {
-        console.warn("Invalid props:", props);
-        return !!0;
-    }
-    for (const prop in props) {
-        if (prop && props.hasOwnProperty(prop) && !RESERVED_PROPS.hasOwnProperty(prop)) {
-            let value = props[prop]
-            if (value instanceof Object) {
-                if (value instanceof Array) // if array
-                element.setAttribute(prop, value.filter(e => e).join(' '));
-                else if (typeof value === 'function' && value != null) // if function
-                element[prop] = value;
-                else Object.assign(element[prop], value);
-            } else {
-                if (value === true) // if simple true
-                element.setAttribute(prop, prop);
-                else if (typeof value === 'string' && value != null) // if string
-                element.setAttribute(prop, value);
-                else if (value !== false && value != null) // something else
-                element.setAttribute(prop, value.toString());
-            }
-        }
-    }
-    return !!1;
 }
 
 function Render(element, container, callback) {
