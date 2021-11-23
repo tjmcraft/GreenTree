@@ -1,5 +1,10 @@
 const { GREEN_ELEMENT_TYPE, RESERVED_PROPS } = require("./Types");
 
+var emptyContextObject = {};
+{
+  Object.freeze(emptyContextObject);
+}
+
 function shouldConstruct$1(Component) {
     var prototype = Component.prototype;
     return !!(prototype && prototype.isGreenElement);
@@ -49,12 +54,26 @@ function setProps(element, props) {
     return !!1;
 }
 
-function isMounted(component) {}
+function SuperNode(node, type, child) {
+    return {
+        elementType: type,
+        child: child,
+        stateNode: node,
+        return: this,
+    };
+}
+
+function isMounted(component) {
+    return false;
+}
 
 var classComponentUpdater = {
     isMounted: isMounted,
     enqueueSetState: function (inst, payload, callback) {
-       
+        console.debug('enqueueSetState:', {
+            instance: inst,
+            payload: payload,
+        });
     },
     enqueueReplaceState: function (inst, payload, callback) {
         
@@ -64,8 +83,68 @@ var classComponentUpdater = {
     }
 };
 
+function updateElement(element, container, parentComponent, callback) {
+    if (typeof element === "object") {
+        if (element.$$typeof == GREEN_ELEMENT_TYPE) {
+            console.debug("element:", element);
+            if (typeof element.type === "string") {
+                const dom_element = document.createElement(element.type);
+                if (element.props) {
+                    //console.debug("Props:", element.props);
+                    setProps(dom_element, element.props); // Set properties to DOM element
+                    if (Array.isArray(element.props.children)) {
+                        const root_c = element.props.children.map(child => legacyRender(element, child, null, null));
+                        for (const child of root_c) {
+                            if (child && child != null)
+                            if (!element.props.unsafeHTML) dom_element.append(child);
+                            else dom_element.innerHTML += child;
+                        }
+                    } else
+                    if (element.props.children && element.props.children != null)
+                    if (!element.props.unsafeHTML) dom_element.append(element.props.children);
+                    else dom_element.innerHTML += element.props.children;
+                }
+                console.debug("string comp:", dom_element);
+                element._gtrInternals = {
+                    type: element.type,
+                    stateNode: dom_element,
+                };
+                return dom_element;
+            } else if (typeof element.type === "function") {
+                if (isSimpleFunctionComponent(element.type)) {
+                    //console.warn("Simple Function Component:", element);
+                    const root_a = element.type.call(this, element.props);
+                    const c = legacyRender(null, root_a, null);
+                    console.debug("function comp:", c);
+                    return c;
+                } else {
+                    //console.warn("Class Component:", element);
+                    var instance = constructClassInstance(element.type, element.props);
+                    var stateNode = instance.render();
+                    instance._gtrInternals = {
+                        type: element.type,
+                        stateNode: stateNode,
+                        return: instance,
+                    };
+                    const c = legacyRender(element, stateNode, null);
+                    console.debug("cls comp:", c);
+                    return c;
+                }
+            }
+
+        } else {
+            console.debug("Invalid:", element)
+        }
+    } else if (typeof element === "string") {
+        return element;
+    }
+    return null;
+}
+
 function legacyCreateRootContainer(container) {
-    return;
+    return {
+        current: container
+    };
 }
 
 function legacyRender(parentComponent, children, container, callback) {
@@ -75,56 +154,16 @@ function legacyRender(parentComponent, children, container, callback) {
             root = container._greentreeRootContainer = legacyCreateRootContainer(container);
         }
     }
-    if (typeof children === "object") {
-        if (children.$$typeof == GREEN_ELEMENT_TYPE) {
-            if (typeof children.type === "string") {
-                const dom_element = document.createElement(children.type);
-                //children.dom_e = dom_element;
-                if (children.props) {
-                    //console.debug("Props:", children.props);
-                    setProps(dom_element, children.props); // Set properties to DOM element
-                    if (Array.isArray(children.props.children)) {
-                        const root_c = children.props.children.map(child => legacyRender(children, child, null, null));
-                        for (const child of root_c) {
-                            if (child && child != null)
-                            if (!children.props.unsafeHTML) dom_element.append(child);
-                            else dom_element.innerHTML += child;
-                        }
-                    } else
-                    if (children.props.children && children.props.children != null)
-                    if (!children.props.unsafeHTML) dom_element.append(children.props.children);
-                    else dom_element.innerHTML += children.props.children;
-                }
-                console.debug("string comp:", dom_element)
-                return dom_element;
-            } else if (typeof children.type === "function") {
-                if (isSimpleFunctionComponent(children.type)) {
-                    //console.warn("Simple Function Component:", children);
-                    const root_a = children.type.call(this, children.props);
-                    const c = legacyRender(null, root_a, null);
-                    console.debug("function comp:", c);
-                    return c;
-                } else {
-                    //console.warn("Class Component:", children);
-                    const root_gc = renderComponent(children.type, children.props);
-                    const c = legacyRender(null, root_gc, null);
-                    console.debug("cls comp:", c);
-                    return c;
-                }
-            }
-        } else {
-            console.debug("Invalid:", children)
-        }
-    } else if (typeof children === "string") {
-        return children;
-    }
+    return updateElement(children, container, null, null);
     return null;
 }
 
-function renderComponent(Component, props) {
+function constructClassInstance(Component, props) {
+    var context = emptyContextObject;
     if (Component.prototype && typeof Component.prototype.render === 'function') {
-        const root_cm = new Component(props);
-        return root_cm.render();
+        var instance = new Component(props, context);
+        instance.updater = classComponentUpdater;
+        return instance;
     }
 }
 

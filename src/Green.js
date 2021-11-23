@@ -12,15 +12,15 @@ var TreeUpdater = {
     isMounted: function (publicInstance) {
         return false;
     },
+    enqueueSetState: function (publicInstance, partialState, callback, callerName) {
+        console.warn('enqueueSetState:', publicInstance.constructor.name);
+    },
     enqueueForceUpdate: function (publicInstance, callback, callerName) {
         console.warn('enqueueForceUpdate:', publicInstance);
     },
     enqueueReplaceState: function (publicInstance, completeState, callback, callerName) {
         console.warn('enqueueReplaceState:', publicInstance);
     },
-    enqueueSetState: function (publicInstance, partialState, callback, callerName) {
-        console.warn('enqueueSetState:', publicInstance.constructor.name);
-    }
 };
 
 var emptyObject = {};

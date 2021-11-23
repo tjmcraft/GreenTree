@@ -96,8 +96,9 @@ function test_new() {
         GreenTree.createElement(function_element, { cust: 123 }),
         GreenTree.createElement(ClassElement, { cust: 456 }),
     );
-    console.debug('AltDom:', element2);
-    GreenTree.Render(element2, app_mount);
+    var element1 = GreenTree.createElement(Clock);
+    console.debug('AltDom:', element1);
+    GreenTree.Render(element1, app_mount);
 }
 
 //test_old();
