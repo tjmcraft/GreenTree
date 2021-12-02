@@ -54,14 +54,38 @@ function setProps(element, props) {
     return !!1;
 }
 
-function SuperNode(node, type, child) {
-    return {
-        elementType: type,
-        child: child,
-        stateNode: node,
-        return: this,
-    };
+function SuperNode(tag, pendingProps, key, mode) {
+     // Instance
+     this.tag = tag;
+     this.key = key;
+     this.elementType = null;
+     this.type = null;
+     this.stateNode = null; // Fiber
+ 
+     this.return = null;
+     this.child = null;
+     this.sibling = null;
+     this.index = 0;
+     this.ref = null;
+     this.pendingProps = pendingProps;
+     this.memoizedProps = null;
+     this.updateQueue = null;
+     this.memoizedState = null;
+     this.dependencies = null;
+     this.mode = mode; // Effects
+ 
+     this.flags = NoFlags;
+     this.nextEffect = null;
+     this.firstEffect = null;
+     this.lastEffect = null;
+     this.lanes = NoLanes;
+     this.childLanes = NoLanes;
+     this.alternate = null;
 }
+
+var createSuper = function (tag, pendingProps, key, mode) {
+    return new SuperNode(tag, pendingProps, key, mode);
+};
 
 function isMounted(component) {
     return false;
@@ -83,7 +107,19 @@ var classComponentUpdater = {
     }
 };
 
+function createSuperNodeFromTypeAndProps(type, props) {
+    var Super = createSuper(type, props, null, null);
+}
+
+function createSuperNode(element) {
+    var type = element.type;
+    var pendingProps = element.props;
+    var superNode = createSuperNodeFromTypeAndProps(type, pendingProps);
+    return superNode;
+}
+
 function updateElement(element, container, parentComponent, callback) {
+    var created = null;
     if (typeof element === "object") {
         if (element.$$typeof == GREEN_ELEMENT_TYPE) {
             console.debug("element:", element);
@@ -93,7 +129,7 @@ function updateElement(element, container, parentComponent, callback) {
                     //console.debug("Props:", element.props);
                     setProps(dom_element, element.props); // Set properties to DOM element
                     if (Array.isArray(element.props.children)) {
-                        const root_c = element.props.children.map(child => legacyRender(element, child, null, null));
+                        const root_c = element.props.children.map(child => updateElement(child, null, element, null));
                         for (const child of root_c) {
                             if (child && child != null)
                             if (!element.props.unsafeHTML) dom_element.append(child);
@@ -138,24 +174,22 @@ function updateElement(element, container, parentComponent, callback) {
     } else if (typeof element === "string") {
         return element;
     }
-    return null;
+    container.child = element;
 }
 
 function legacyCreateRootContainer(container) {
     return {
-        current: container
+        id: 1,
+        current: container,
     };
 }
 
 function legacyRender(parentComponent, children, container, callback) {
-    if (container) {
-        var root = container._greentreeRootContainer;
-        if (!root) {
-            root = container._greentreeRootContainer = legacyCreateRootContainer(container);
-        }
+    var root = container._greentreeRootContainer;
+    if (!root) {
+        root = container._greentreeRootContainer = legacyCreateRootContainer(container);
     }
-    return updateElement(children, container, null, null);
-    return null;
+    return updateElement(children, root, null, null);
 }
 
 function constructClassInstance(Component, props) {
