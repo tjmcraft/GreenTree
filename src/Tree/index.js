@@ -1,4 +1,4 @@
-const { GREEN_ELEMENT_TYPE, RESERVED_PROPS, ELEMENT_NODE, GREEN_TREE_TYPE } = require("./Types");
+const { GREEN_ELEMENT_TYPE, RESERVED_PROPS, ELEMENT_NODE, GREEN_TREE_TYPE } = require("../Types");
 
 var emptyContextObject = {};
 {

@@ -1,6 +1,6 @@
 'use strict';
 
-const { GREEN_ELEMENT_TYPE, RESERVED_PROPS } = require("./Types");
+const { GREEN_ELEMENT_TYPE, RESERVED_PROPS } = require("../Types");
 
 function createRef() {
     var refObject = { current: null };
