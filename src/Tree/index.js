@@ -1,4 +1,5 @@
 const { GREEN_ELEMENT_TYPE, RESERVED_PROPS, ELEMENT_NODE, GREEN_TREE_TYPE } = require("../Types");
+const { legacyCreateRootContainerFromDOM } = require("./LegacyRoot");
 
 var emptyContextObject = {};
 {
@@ -54,39 +55,6 @@ function setProps(element, props) {
     return !!1;
 }
 
-function SuperNode(tag, pendingProps, key, mode) {
-     // Instance
-     this.tag = tag;
-     this.key = key;
-     this.elementType = null;
-     this.type = null;
-     this.stateNode = null; // Fiber
- 
-     this.return = null;
-     this.child = null;
-     this.sibling = null;
-     this.index = 0;
-     this.ref = null;
-     this.pendingProps = pendingProps;
-     this.memoizedProps = null;
-     this.updateQueue = null;
-     this.memoizedState = null;
-     this.dependencies = null;
-     this.mode = mode; // Effects
- 
-     this.flags = NoFlags;
-     this.nextEffect = null;
-     this.firstEffect = null;
-     this.lastEffect = null;
-     this.lanes = NoLanes;
-     this.childLanes = NoLanes;
-     this.alternate = null;
-}
-
-var createSuper = function (tag, pendingProps, key, mode) {
-    return new SuperNode(tag, pendingProps, key, mode);
-};
-
 function isMounted(component) {
     return false;
 }
@@ -106,17 +74,6 @@ var classComponentUpdater = {
        
     }
 };
-
-function createSuperNodeFromTypeAndProps(type, props) {
-    var Super = createSuper(type, props, null, null);
-}
-
-function createSuperNode(element) {
-    var type = element.type;
-    var pendingProps = element.props;
-    var superNode = createSuperNodeFromTypeAndProps(type, pendingProps);
-    return superNode;
-}
 
 function updateElement(element, container, parentComponent, callback) {
     var created = null;
@@ -177,35 +134,16 @@ function updateElement(element, container, parentComponent, callback) {
     //container.child = element;
 }
 
-function legacyCreateRootContainerFromDOM(container, forceHydrate) {
-    const shouldHydrate = forceHydrate || false;
-    if (!shouldHydrate) {
-        let warned = false;
-        let root;
-        while (root = container.lastChild) {
-            {
-                if (!warned && root.nodeType === ELEMENT_NODE && root.hasAttribute("green-root")) {
-                    warned = true;
-                    console.warn("Warn! Removing root node from DOM container given is a bad idea!");
-                }
-            }
-            container.removeChild(root);
-        }
-    }
-    return {
-        id: 1,
-        current: container,
-        $$typeof: GREEN_TREE_TYPE,
-    };
-}
-
 function legacyRender(parentComponent, children, container, callback) {
     var root = container._greentreeRootContainer;
+    var superRoot;
     if (!root) {
         root = container._greentreeRootContainer = legacyCreateRootContainerFromDOM(container, false);
-        updateElement(children, root, parentComponent, callback);
+        superRoot = root._internalRoot;
+        updateElement(children, superRoot, parentComponent, callback);
     } else {
-        updateElement(children, root, parentComponent, callback);
+        superRoot = root._internalRoot;
+        updateElement(children, superRoot, parentComponent, callback);
     }
     return root;
 }
