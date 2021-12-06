@@ -1,4 +1,4 @@
-const { GREEN_ELEMENT_TYPE, RESERVED_PROPS } = require("./Types");
+const { GREEN_ELEMENT_TYPE, RESERVED_PROPS, ELEMENT_NODE, GREEN_TREE_TYPE } = require("./Types");
 
 var emptyContextObject = {};
 {
@@ -150,7 +150,7 @@ function updateElement(element, container, parentComponent, callback) {
                 if (isSimpleFunctionComponent(element.type)) {
                     //console.warn("Simple Function Component:", element);
                     const root_a = element.type.call(this, element.props);
-                    const c = legacyRender(null, root_a, null);
+                    const c = updateElement(root_a, null, null);
                     console.debug("function comp:", c);
                     return c;
                 } else {
@@ -162,7 +162,7 @@ function updateElement(element, container, parentComponent, callback) {
                         stateNode: stateNode,
                         return: instance,
                     };
-                    const c = legacyRender(element, stateNode, null);
+                    const c = updateElement(stateNode, null);
                     console.debug("cls comp:", c);
                     return c;
                 }
@@ -174,22 +174,40 @@ function updateElement(element, container, parentComponent, callback) {
     } else if (typeof element === "string") {
         return element;
     }
-    container.child = element;
+    //container.child = element;
 }
 
-function legacyCreateRootContainer(container) {
+function legacyCreateRootContainerFromDOM(container, forceHydrate) {
+    const shouldHydrate = forceHydrate || false;
+    if (!shouldHydrate) {
+        let warned = false;
+        let root;
+        while (root = container.lastChild) {
+            {
+                if (!warned && root.nodeType === ELEMENT_NODE && root.hasAttribute("green-root")) {
+                    warned = true;
+                    console.warn("Warn! Removing root node from DOM container given is a bad idea!");
+                }
+            }
+            container.removeChild(root);
+        }
+    }
     return {
         id: 1,
         current: container,
+        $$typeof: GREEN_TREE_TYPE,
     };
 }
 
 function legacyRender(parentComponent, children, container, callback) {
     var root = container._greentreeRootContainer;
     if (!root) {
-        root = container._greentreeRootContainer = legacyCreateRootContainer(container);
+        root = container._greentreeRootContainer = legacyCreateRootContainerFromDOM(container, false);
+        updateElement(children, root, parentComponent, callback);
+    } else {
+        updateElement(children, root, parentComponent, callback);
     }
-    return updateElement(children, root, null, null);
+    return root;
 }
 
 function constructClassInstance(Component, props) {
@@ -206,8 +224,12 @@ function Render(element, container, callback) {
         console.error("Element is not a GreenElement!");
         return;
     }
+    if (container.nodeType !== ELEMENT_NODE && !container.tagName) {
+        console.error("Container is not a node element!");
+        return;
+    }
     const root$1 = legacyRender(null, element, container, callback);
-    container.append(root$1);
+    //container.append(root$1);
     //window.root$1 = root$1;
     return root$1;
 }
