@@ -76,6 +76,7 @@ var classComponentUpdater = {
 };
 
 function updateElement(element, container, parentComponent, callback) {
+    var current$1 = container.current;
     var created = null;
     if (typeof element === "object") {
         if (element.$$typeof == GREEN_ELEMENT_TYPE) {
