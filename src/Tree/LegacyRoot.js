@@ -15,7 +15,6 @@ function createLegacyRoot(container, options) {
     return new DOMBlockingRoot(container, LegacyRoot, options);
 }
 
-
 export function legacyCreateRootContainerFromDOM(container, forceHydrate) {
     const shouldHydrate = forceHydrate || false;
     if (!shouldHydrate) {
