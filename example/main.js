@@ -1,14 +1,15 @@
 const app_mount = document.getElementById('app-mount');
+
 function test_old() {
 
     class Clock extends GreenTree.AbstractElement {
-        constructor (props) {
+        constructor(props) {
             super(props);
-            this.state = {date: new Date().toUTCString()};
+            this.state = { date: new Date().toUTCString() };
             setInterval(() => this.tick(), 1000);
         }
-        tick () {
-            this.setState({date: new Date().toUTCString()});
+        tick() {
+            this.setState({ date: new Date().toUTCString() });
         }
         create() {
             return GreenTree.createElement('div', { class: ['clock'] }, `${this.state.date}`);
@@ -36,19 +37,19 @@ function test_old() {
         }
     }
 
-    const var_element = GreenTree.createElement('div', {class:'var-element'}, 'var element')
+    const var_element = GreenTree.createElement('div', { class: 'var-element' }, 'var element')
 
-    const function_element = function (props) {
+    const function_element = function(props) {
         return GreenTree.createElement('div', { class: 'function-element' }, 'function element');
     }
 
     let ref_test = {};
 
-    const element = 
+    const element =
         GreenTree.createElement('root', { ref: ref_test }, // Ref test
-            GreenTree.createElement('span', { class: ['first','second'], customProperty: 'lol' }, // Element with custom property
+            GreenTree.createElement('span', { class: ['first', 'second'], customProperty: 'lol' }, // Element with custom property
                 "Basic TEXT", // RAW text
-                GreenTree.createElement(ClassElement, {customProperty: '5347'}), // Class Element
+                GreenTree.createElement(ClassElement, { customProperty: '5347' }), // Class Element
                 //GreenTree.createElement(ClassElementWithProps, { prop: 1 }, ["Child1", "Child2"]), // Empty Class
                 //["Child1", "Child2"], // Array Element
                 null, // Null Element
@@ -64,18 +65,18 @@ function test_old() {
     console.debug('Ref:', ref_test)
     console.debug('Element:', element)
 
-    GreenTree.Render(element, app_mount); 
+    GreenTree.Render(element, app_mount);
 }
 
 function test_new() {
     class Clock extends GreenTree.AbstractElement {
-        constructor (props) {
+        constructor(props) {
             super(props);
-            this.state = {date: new Date().toUTCString()};
+            this.state = { date: new Date().toUTCString() };
             setInterval(() => this.tick(), 1000);
         }
-        tick () {
-            this.setState({date: new Date().toUTCString()});
+        tick() {
+            this.setState({ date: new Date().toUTCString() });
         }
         render() {
             return GreenTree.createElement('div', { class: ['clock', 'sep'] }, `${this.state.date}`);
@@ -86,19 +87,25 @@ function test_new() {
             return GreenTree.createElement('span', { class: "span-element", cust: this.props.cust }, "text child");
         }
     }
+
     function function_element(props) {
         return GreenTree.createElement('div', { class: "function-element", cust: props.cust }, "function element");
     }
-    var element2 = GreenTree.createElement('root', { class: 'one' },
+    
+    //GreenTree.createElement(Clock),
+    //GreenTree.createElement(ClassElement, { cust: 456 }),
+    //var element1 = GreenTree.createElement(Clock);
+    
+    const element = GreenTree.createElement('div', { prop: 1 },
         GreenTree.createElement('div', { class: 'two' }, 'text', 'text2'),
         GreenTree.createElement('div', { class: 'twosep' }, 'text23'),
-        GreenTree.createElement(Clock),
-        GreenTree.createElement(function_element, { cust: 123 }),
+        //GreenTree.createElement(function_element, { cust: 123 }),
         GreenTree.createElement(ClassElement, { cust: 456 }),
     );
-    var element1 = GreenTree.createElement(Clock);
-    console.debug('AltDom:', element1);
-    GreenTree.Render(element1, app_mount);
+    const render = GreenTree.Render(element, app_mount);
+    console.log("[G]", "GreenDom:", element);
+    console.log("[G]", "Render:", render);
+    console.log("[G]", "RootContainer:", app_mount._greentreeRootContainer);
 }
 
 //test_old();
