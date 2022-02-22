@@ -1,0 +1,27 @@
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Test</title>
+    <script crossorigin="anonymous" src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <!--<script crossorigin="anonymous" src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>-->
+    <script src="./react-dom.js"></script>
+    <!--<script src="../ElementEx.js"></script>-->
+</head>
+
+<body>
+    <div id="app-mount"></div>
+</body>
+<script type="text/javascript">
+    (function() {
+        const app_mount = document.getElementById('app-mount');
+        const element = React.createElement("div", {prop: 1}, "Text Node");
+        const render = ReactDOM.render(element, app_mount);
+        console.log("[R]", "AltDom:", element);
+        console.log("[R]", "Render:", render);
+        console.log("[R]", "Root:", app_mount._reactRootContainer);
+    })();
+</script>
+
+</html>
