@@ -2,13 +2,16 @@
 
 const { GREEN_ELEMENT_TYPE, RESERVED_PROPS } = require("../Types");
 
+var emptyObject = {};
+Object.freeze(emptyObject);
+
 function createRef() {
     var refObject = { current: null };
     Object.seal(refObject);
     return refObject;
 }
 
-var TreeUpdater = {
+var TreeUpdater = { // default updater
     isMounted: function (publicInstance) {
         return false;
     },
@@ -22,13 +25,6 @@ var TreeUpdater = {
         console.warn('enqueueReplaceState:', publicInstance);
     },
 };
-
-var emptyObject = {};
-
-{
-    Object.freeze(emptyObject);
-}
-  
 function Component(props, context, updater) {
     this.props = props;
     this.context = context;
@@ -42,7 +38,6 @@ Component.prototype.setState = function (partialState, callback) {
           throw Error( "setState(...): takes an object of state variables to update or a function which returns an object of state variables." );
         }
     }
-    //console.log("setState:", partialState);
     this.updater.enqueueSetState(this, partialState, callback, 'setState');
 }
 Component.prototype.forceUpdate = function (callback) {
@@ -56,24 +51,22 @@ var GreenElement = function (type, key, ref, self, source, owner, props) {
         key: key,
         ref: ref,
         props: props,
-        _owner: owner
-    }; {
+        _owner: owner,
+    };
+    {
         element._store = {};
-
         Object.defineProperty(element._store, 'validated', {
             configurable: false,
             enumerable: false,
             writable: true,
             value: false
         });
-
         Object.defineProperty(element, '_self', {
             configurable: false,
             enumerable: false,
             writable: false,
             value: self
         });
-
         Object.defineProperty(element, '_source', {
             configurable: false,
             enumerable: false,
