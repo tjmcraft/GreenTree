@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const webpack = require('webpack');
 
 module.exports = {
@@ -20,7 +21,9 @@ module.exports = {
         extensions: [".js"]
     },
     devtool: "source-map",
-    plugins: [],
+    plugins: [
+        new webpack.BannerPlugin(fs.readFileSync('./LICENSE', 'utf8')),
+    ],
     module: {
         rules: [
             {
