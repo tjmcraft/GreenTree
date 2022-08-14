@@ -1,5 +1,6 @@
 const { GREEN_ELEMENT_TYPE, RESERVED_PROPS, ELEMENT_NODE, GREEN_TREE_TYPE } = require("../Types");
 const { legacyCreateRootContainerFromDOM } = require("./LegacyRoot");
+const { createSuper } = require("./Super");
 
 var emptyContextObject = {};
 {
@@ -101,8 +102,15 @@ function updateElement(element, container, parentComponent, callback) {
                 console.debug("string comp:", dom_element);
                 element._gtrInternals = {
                     type: element.type,
+                    dom_element: dom_element,
+                    debug: true,
+                };
+                current$1.child = createSuper(element.type, element.props, null, null);
+                current$1.child._gtrInternals = {
+                    type: element.type,
                     stateNode: dom_element,
                 };
+                current$1.child.stateNode = dom_element;
                 return dom_element;
             } else if (typeof element.type === "function") {
                 if (isSimpleFunctionComponent(element.type)) {
@@ -139,8 +147,10 @@ function legacyRender(parentComponent, children, container, callback) {
     var root = container._greentreeRootContainer;
     var superRoot;
     if (!root) {
+        console.debug("legacyRender:", "No root! Creating new one...");
         root = container._greentreeRootContainer = legacyCreateRootContainerFromDOM(container, false);
         superRoot = root._internalRoot;
+        console.debug("legacyRender:", "New root:", superRoot);
         updateElement(children, superRoot, parentComponent, callback);
     } else {
         superRoot = root._internalRoot;
