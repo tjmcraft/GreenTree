@@ -3,119 +3,86 @@
 const { GREEN_ELEMENT_TYPE, RESERVED_PROPS } = require("../Types");
 
 function createRef() {
-    var refObject = { current: null };
-    Object.seal(refObject);
-    return refObject;
+    return Object.seal({ current: null });
 }
 
-var TreeUpdater = {
+const TreeUpdater = {
     isMounted: function (publicInstance) {
         return false;
     },
     enqueueSetState: function (publicInstance, partialState, callback, callerName) {
-        console.warn('enqueueSetState:', publicInstance.constructor.name);
+        console.warn('[Green]', '[enqueueSetState]', publicInstance.constructor.name);
     },
     enqueueForceUpdate: function (publicInstance, callback, callerName) {
-        console.warn('enqueueForceUpdate:', publicInstance);
+        console.warn('[Green]', '[enqueueForceUpdate]', publicInstance);
     },
     enqueueReplaceState: function (publicInstance, completeState, callback, callerName) {
-        console.warn('enqueueReplaceState:', publicInstance);
+        console.warn('[Green]', '[enqueueReplaceState]', publicInstance);
     },
 };
-
-var emptyObject = {};
-
-{
-    Object.freeze(emptyObject);
-}
   
 function Component(props, context, updater) {
     this.props = props;
     this.context = context;
-    this.refs = emptyObject;
+    this.refs = {};
     this.updater = updater || TreeUpdater;
 }
-Component.prototype.isGreenElement = {};
+Component.prototype.isGreenElement = true;
 Component.prototype.setState = function (partialState, callback) {
     if (!(typeof partialState === 'object' || typeof partialState === 'function' || partialState == null)) {
         {
           throw Error( "setState(...): takes an object of state variables to update or a function which returns an object of state variables." );
         }
     }
-    //console.log("setState:", partialState);
     this.updater.enqueueSetState(this, partialState, callback, 'setState');
 }
 Component.prototype.forceUpdate = function (callback) {
     this.updater.enqueueForceUpdate(this, callback, 'forceUpdate');
-};
+}
 
-var GreenElement = function (type, key, ref, self, source, owner, props) {
-    var element = {
+const GreenElement = function (type, key, ref, props) {
+    return Object.assign({
         $$typeof: GREEN_ELEMENT_TYPE,
+        type: 'div',
+        key: 0,
+        ref: null,
+        props: {},
+    }, {
         type: type,
-        key: key,
-        ref: ref,
+        key: key, // Unused now
+        ref: ref, // unused now
         props: props,
-        _owner: owner
-    }; {
-        element._store = {};
-
-        Object.defineProperty(element._store, 'validated', {
-            configurable: false,
-            enumerable: false,
-            writable: true,
-            value: false
-        });
-
-        Object.defineProperty(element, '_self', {
-            configurable: false,
-            enumerable: false,
-            writable: false,
-            value: self
-        });
-
-        Object.defineProperty(element, '_source', {
-            configurable: false,
-            enumerable: false,
-            writable: false,
-            value: source
-        });
-    }
-    return element;
+    });
 }
 
 function createElement(type, attributes, children) {
-    var propName;
 
-    var props = {};
-    var key = null;
-    var ref = null;
-    var self = null;
-    var source = null;
+    let props = {};
+    let key = null;
+    let ref = null;
 
     if (attributes != null) {
-        for (propName in attributes) {
+        for (var propName in attributes) {
             if (attributes.hasOwnProperty(propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
                 props[propName] = attributes[propName];
             }
         }
     }
 
-    var childrenLength = arguments.length - 2;
+    const childrenLength = arguments.length - 2;
 
     if (childrenLength === 1) {
         props.children = children;
     } else if (childrenLength > 1) {
-        var childArray = Array(childrenLength);
+        let childArray = Array(childrenLength);
         for (var i = 0; i < childArray.length; i++) {
             childArray[i] = arguments[i + 2];
-        } {
-            Object.freeze && Object.freeze(childArray);
         }
+        Object.freeze(childArray);
         props.children = childArray;
     }
 
-    return GreenElement(type, key, ref, self, source, null, props);
+    return GreenElement(type, key, ref, props);
 }
 
 exports.Component = Component;
