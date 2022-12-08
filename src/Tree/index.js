@@ -11,7 +11,7 @@ var currentEventTime = 0;
 function getPublicRootInstance(container) {
     console.debug("[getPublicRootInstance]", container);
     var containerFiber = container.current;
-    
+
     if (!containerFiber.child) {
         return null;
     }
@@ -125,7 +125,7 @@ function createWorkInProgress(current, pendingProps) {
     workInProgress.child = current.child;
     workInProgress.memoizedProps = current.memoizedProps;
     workInProgress.memoizedState = current.memoizedState;
-    workInProgress.updateQueue = current.updateQueue; 
+    workInProgress.updateQueue = current.updateQueue;
 
     workInProgress.ref = current.ref;
     return workInProgress;
@@ -153,25 +153,56 @@ function renderRootSync(root) {
     } while (true);
 }
 
-function workLoopSync() {
-    while (workInProgress != null) {
-        preformWorkOnUnit(workInProgress);
-    }
-}
-
-function preformWorkOnUnit(unit) {
-    console.debug('[performUnitOfWork]', arguments);
-    var current = unit.alternate;
-    var next;
-    next = beginWork(current, unit);
-    unit.memoizedProps = unit.pendingProps;
-    if (next === null) {
-        completeWorkOnUnit(unit);
-    } else {
-        workInProgress = next;
-    }
-    workInProgress = null;
-}
+function updateElement(element, container, parentComponent, callback) {
+    var current$1 = container.current;
+    var created = null;
+    if (typeof element === "object") {
+        if (element.$$typeof == GREEN_ELEMENT_TYPE) {
+            console.debug("element:", element);
+            if (typeof element.type === "string") {
+                const dom_element = document.createElement(element.type);
+                if (element.props) {
+                    //console.debug("Props:", element.props);
+                    setProps(dom_element, element.props); // Set properties to DOM element
+                    if (Array.isArray(element.props.children)) {
+                        const root_c = element.props.children.map(child => updateElement(child, null, element, null));
+                        for (const child of root_c) {
+                            if (child && child != null)
+                            if (!element.props.unsafeHTML) dom_element.append(child);
+                            else dom_element.innerHTML += child;
+                        }
+                    } else
+                    if (element.props.children && element.props.children != null)
+                    if (!element.props.unsafeHTML) dom_element.append(element.props.children);
+                    else dom_element.innerHTML += element.props.children;
+                }
+                console.debug("string comp:", dom_element);
+                element._gtrInternals = {
+                    type: element.type,
+                    stateNode: dom_element,
+                };
+                return dom_element;
+            } else if (typeof element.type === "function") {
+                if (isSimpleFunctionComponent(element.type)) {
+                    //console.warn("Simple Function Component:", element);
+                    const root_a = element.type.call(this, element.props);
+                    const c = updateElement(root_a, null, null);
+                    console.debug("function comp:", c);
+                    return c;
+                } else {
+                    //console.warn("Class Component:", element);
+                    var instance = constructClassInstance(element.type, element.props);
+                    var stateNode = instance.render();
+                    instance._gtrInternals = {
+                        type: element.type,
+                        stateNode: stateNode,
+                        return: instance,
+                    };
+                    const c = updateElement(stateNode, null);
+                    console.debug("cls comp:", c);
+                    return c;
+                }
+            }
 
 function beginWork(current, workInProgress) {
     console.debug('[beginWork]', arguments);
@@ -209,10 +240,14 @@ function updateContainer(element, container, parentComponent, callback) {
 
 function legacyRender(parent, children, container, callback) {
     var root = container._greentreeRootContainer;
-    var leafRoot;
-
-    if (!root) { // First time initial mount
-        root = container._greentreeRootContainer = createRootContainer(container);
+    var superRoot;
+    if (!root) {
+        root = container._greentreeRootContainer = legacyCreateRootContainerFromDOM(container, false);
+        superRoot = root._internalRoot;
+        updateElement(children, superRoot, parentComponent, callback);
+    } else {
+        superRoot = root._internalRoot;
+        updateElement(children, superRoot, parentComponent, callback);
     }
     leafRoot = root._internalRoot;
     updateContainer(children, leafRoot, parent, callback);
