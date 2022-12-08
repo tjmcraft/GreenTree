@@ -44,7 +44,7 @@ function test_old() {
 
     let ref_test = {};
 
-    const element = 
+    const element =
         GreenTree.createElement('root', { ref: ref_test }, // Ref test
             GreenTree.createElement('span', { class: ['first','second'], customProperty: 'lol' }, // Element with custom property
                 "Basic TEXT", // RAW text
@@ -64,7 +64,7 @@ function test_old() {
     console.debug('Ref:', ref_test)
     console.debug('Element:', element)
 
-    GreenTree.Render(element, app_mount); 
+    GreenTree.Render(element, app_mount);
 }
 
 function test_new() {
@@ -90,16 +90,15 @@ function test_new() {
         return GreenTree.createElement('div', { class: "function-element", cust: props.cust }, "function element");
     }
     var element2 = GreenTree.createElement('root', { class: 'one' },
-        "Hello world!"
-        //GreenTree.createElement('div', { class: 'two' }, 'text', 'text2'),
-        //GreenTree.createElement('div', { class: 'twosep' }, 'text23'),
-        //GreenTree.createElement(Clock),
-        //GreenTree.createElement(function_element, { cust: 123 }),
-        //GreenTree.createElement(ClassElement, { cust: 456 }),
+        GreenTree.createElement('div', { class: 'two' }, 'text', 'text2'),
+        GreenTree.createElement('div', { class: 'twosep' }, 'text23'),
+        GreenTree.createElement(Clock),
+        GreenTree.createElement(function_element, { cust: 123 }),
+        GreenTree.createElement(ClassElement, { cust: 456 }),
     );
-    //var element1 = GreenTree.createElement(Clock);
-    console.debug('AltDom:', element2);
-    GreenTree.Render(element2, app_mount);
+    var element1 = GreenTree.createElement(Clock);
+    console.debug('AltDom:', element1);
+    GreenTree.Render(element1, app_mount);
 }
 
 //test_old();
