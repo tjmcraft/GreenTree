@@ -1,0 +1,54 @@
+<html>
+
+<head>
+    <script crossorigin="anonymous" src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin="anonymous" src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <!--<script type="text/javascript" src="./react-dom.js"></script>-->
+</head>
+
+<body>
+    <div id="app-mount"></div>
+</body>
+<script type="text/javascript">
+    class Clock extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = { date: new Date().toUTCString() };
+        }
+        tick() {
+            this.setState({ date: Math.floor(performance.now()) });
+        }
+        componentDidMount() {
+            console.warn('>> componentDidMount', this.state);
+            setTimeout(() => this.tick(), 100);
+        }
+        render() {
+            //console.warn('>>> render', this.state);
+            return React.createElement('div', { className: ['clock', 'sep'] }, `${this.state.date}`);
+        }
+    }
+    class ClassElement extends React.Component {
+        render() {
+            return React.createElement('span', { className: "span-element", cust: this.props.cust }, "text child");
+        }
+    }
+    const ff = ({ cs }) => React.createElement("div", { className: "ff-cl" }, cs);
+    function FunctionElement(props) {
+        const [state, setState] = React.useState(1)
+        React.useEffect(() => {
+            console.debug("effect:", state);
+        }, [])
+        return React.createElement('div', { className: "function-element", cust: props.cust, onClick: () => setState(c => c + 1) }, "function element:", React.createElement(ff, { cs: state }));
+    }
+    const App = React.createElement('h1', null,
+        React.createElement(Clock),
+        React.createElement(Clock),
+        React.createElement(Clock),
+        React.createElement(ClassElement),
+        React.createElement(FunctionElement)
+        );
+    console.debug("VD", App);
+    ReactDOM.render(App, document.getElementById("app-mount"));
+</script>
+
+</html>
