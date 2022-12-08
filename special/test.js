@@ -104,7 +104,7 @@ const root = document.getElementById("root");
     componentWillUnmount() {
       console.warn('>> componentWillUnmount', this.state);
     }
-    render() {
+    create() {
       console.warn('>> render', this.state);
       return GreenTree.createElement('div', { class: ['clock', 'sep'] },
         GreenTree.createElement('h1', null, "Node#", this.props.key),
@@ -114,11 +114,27 @@ const root = document.getElementById("root");
   }
 
   class ClassElement extends GreenTree.AbstractElement {
+    create() {
+      console.debug(">> classEl render");
+      return GreenTree.createElement('span', { className: "span-element", cust: this.props.cust }, "text child");
+    }
+    componentDidMount() {
+      console.warn('>> componentDidMount', "ClassElement");
+    }
+    componentDidUpdate(oldProps) {
+      console.warn('>> componentDidUpdate', "ClassElement");
+    }
+    componentWillUnmount() {
+      console.warn('>> componentWillUnmount', "ClassElement");
+    }
+  }
+
+  class ClassElementRef extends GreenTree.AbstractElement {
     constructor(props) {
       super(props);
       this.refTest = GreenTree.createRef();
     }
-    render() {
+    create() {
       return (
         GreenTree.createElement('span', { class: "span-element", cust: this.props.cust, ref: this.refTest }, "text child")
       );
@@ -160,5 +176,5 @@ const root = document.getElementById("root");
   //var element2 = GreenTree.createElement(Clock);
   console.debug('AltDom:', element1);
   //console.debug('Ref:', ttRef);
-  console.debug("Render:", GreenTree.render(element1, root));
+  console.debug("Render:", GreenTree.Render(element1, root));
 })();

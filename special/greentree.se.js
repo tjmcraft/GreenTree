@@ -1,22 +1,20 @@
 /**
- * GreenTree.js Library (SE Edition)
+ * GreenTree.js Library (SE Edition) | DEV Ready | No Debug
  *
  * Copyright (c) TJMC-Company, Inc. and its affiliates. All Rights Reserved.
  *
  * Created for TJMC-Company, Inc. by MakAndJo
  */
 
+ 'use strict';
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
       (global = global || self, factory(global.GreenTree = {}));
 }(this, (function (exports) {
 
-  'use strict';
-
   var now = () => new Date().getTime();
   var initialTime = now();
-  var currentEventTime = 0;
 
   const GREEN_ELEMENT_TYPE = Symbol('green.leaf');
   const GREEN_TREE_TYPE = Symbol('green.tree');
@@ -262,8 +260,8 @@
     //console.debug(">>", "commit", fiber);
 
     // TODO: Commit recuresevly (upper)
-
     commitWork(fiber.child); // go down
+
 
     //console.log("[commitWork]", fiber);
 
@@ -288,16 +286,21 @@
         }; break;
       case Deletion:
         {
-          commitDeletion(fiber, domParent);
           if (fiber.tag == ClassComponent) {
             if (typeof fiber.stateNode.componentWillUnmount === "function") {
               fiber.stateNode.componentWillUnmount();
+              if (typeof fiber._mountCallback === "function") {
+                fiber._mountCallback();
+              }
             }
+          } else {
+            commitDeletion(fiber, domParent);
           }
         }; break;
     }
 
     commitWork(fiber.sibling); // go side
+
 
     fiber.flags = NoFlags; // Reset leaf update flags
     return fiber;
@@ -311,7 +314,7 @@
     const instance = fiber.stateNode;
     const oldProps = fiber.memoizedProps;
     const newProps = fiber.pendingProps;
-    console.debug(">>", "commitUpdate", instance, oldProps, newProps);
+    //console.debug(">>", "commitUpdate", instance, oldProps, newProps);
     if (instance) {
       if (fiber.tag == HostText) {
         updateDom(instance, {
@@ -346,7 +349,7 @@
       }
     } else {
       if (typeof fiber.stateNode.componentDidMount === "function") {
-        fiber.stateNode.componentDidMount();
+        fiber._mountCallback = fiber.stateNode.componentDidMount();
       }
     }
   }
@@ -357,7 +360,7 @@
    * @param {Node} domParent - dom parent
    */
   function commitDeletion(fiber, domParent) {
-    if (fiber.stateNode) {
+    if (fiber.stateNode && fiber.tag != ClassComponent) {
       domParent.removeChild(fiber.stateNode);
     } else {
       commitDeletion(fiber.child, domParent)
@@ -553,43 +556,17 @@
 
   // == UPDATER == //
 
-  function createWorkInProgress(current, pendingProps) {
-    var workInProgress = current.alternate;
-    if (workInProgress === null) {
-      workInProgress = createLeaf(current.tag, pendingProps, current.key);
-      workInProgress.type = current.type;
-      workInProgress.stateNode = current.stateNode;
-
-      workInProgress.alternate = current;
-      current.alternate = workInProgress;
-    } else {
-      workInProgress.pendingProps = pendingProps; // Needed because Blocks store data on type.
-      workInProgress.type = current.type; // We already have an alternate.
-      workInProgress.flags = NoFlags; // The effect list is no longer valid.
-      //workInProgress.alternate = current;
-    }
-    //workInProgress.parent = current;
-    workInProgress.child = current.child;
-    workInProgress.sibling = current.sibling;
-    workInProgress.index = current.index;
-    workInProgress.ref = current.ref;
-    workInProgress.memoizedProps = current.memoizedProps;
-    workInProgress.memoizedState = current.memoizedState;
-    workInProgress.createdAt = now();
-    return workInProgress;
-  }
-
   var classComponentUpdater = {
     isMounted: false,
     enqueueSetState: function (inst, payload, callback) {
       const fiber = inst._gtrInternal;
-      //console.warn(">>C", "set state", payload);
+      console.warn(">>C", "set state", payload);
       //console.debug(">> fiber class", fiber);
-      inst.state = payload;
+      //inst.state = payload;
       //const current = createWorkInProgress(fiber, inst.props);
       //current.alternate = fiber;
-      const current = Object.assign({}, fiber, { alternate: fiber });
-      console.debug(">>", "stt", current);
+      const current = Object.assign(createLeaf(), fiber, { alternate: fiber, pendingState: payload });
+      //console.debug(">>", "stt", current);
       deletions = [];
       workLoopSync(current);
     },
@@ -664,11 +641,9 @@
       const fiber = wipFiber;
       hook.queue.push(action);
       //console.debug(">>U", "setState", fiber);
-      const newFiber = Object.assign({}, fiber, {
-        alternate: fiber,
-      });
+      const current = Object.assign(createLeaf(), fiber, { alternate: fiber });
       deletions = [];
-      workLoopSync(newFiber);
+      workLoopSync(current);
     }
 
     wipFiber.hooks.push(hook);
@@ -679,16 +654,16 @@
   // == MUTATORS == //
 
   function updateClassComponent(fiber) {
-    console.debug(">>", "{2}", "[updateClassComponent]", fiber);
+    //console.debug(">>", "{2}", "[updateClassComponent]", fiber);
     fiber.tag = ClassComponent;
     if (!fiber.stateNode) {
       fiber.stateNode = new fiber.type(fiber.pendingProps);
       fiber.stateNode.updater = classComponentUpdater;
-      //fiber.pendingState = fiber.stateNode.state;
+      fiber.pendingState = fiber.stateNode.state;
     }
     fiber.stateNode.props = fiber.pendingProps;
-    //fiber.stateNode.state = fiber.pendingState;
-    const children = fiber.stateNode.render();
+    fiber.stateNode.state = fiber.pendingState;
+    const children = fiber.stateNode.create(fiber.stateNode.props);
     reconcileChildren(fiber, children);
     return fiber.child;
   }
@@ -705,7 +680,7 @@
   }
 
   function updateHostComponent(fiber) {
-    console.debug("{2}", "[updateHostComponent]", fiber);
+    //console.debug("{2}", "[updateHostComponent]", fiber);
     if (!fiber.stateNode) {
       fiber.stateNode = createDom(fiber);
     }
@@ -774,7 +749,7 @@
             index: index,
           });
           //newFiber = createFiberUpdate(wipFiber, element);
-          console.warn('>> NEW FIBER', newFiber);
+          //console.warn('>> NEW FIBER', newFiber);
         } else {
           /* newFiber = createWorkInProgress(wipFiber, element);
           newFiber.flags = Update; */
@@ -845,5 +820,5 @@
   exports.useEffect = useEffect;
   exports.AbstractElement = AbstractElement;
   exports.createElement = createElement;
-  exports.render = render;
+  exports.Render = render;
 })));
