@@ -146,6 +146,24 @@ const root = document.getElementById("root");
     }
   }
 
+  class StateComponent extends GreenTree.AbstractElement {
+    constructor(props) {
+      super(props);
+      this.state = { show: false };
+    }
+    create() {
+      console.debug(">> render", this.props.t);
+      return GreenTree.createElement("div", {class: 'state-component', tt: this.props.t}, !this.state.show ? "show" : (!this.props.sd ? "hide" : null))
+    }
+    tick() {
+      this.setState({ show: true });
+      //console.debug(">> tick", this.state);
+    }
+    componentDidMount() {
+      !this.props.dd && setTimeout(() => this.tick(), this.props.t || 1000);
+    }
+  }
+
   function function_element(props) {
     const [state, setState] = GreenTree.useState(1);
     GreenTree.useEffect(() => {
@@ -166,15 +184,18 @@ const root = document.getElementById("root");
   var element1 = GreenTree.createElement('div', { class: 'container' },
     //GreenTree.createElement('div', { class: 'two' }, 'text', 'text2'),
     //GreenTree.createElement('div', { class: 'twosep' }, 'text23'),
-    GreenTree.createElement(Clock, {key: 1}),
+    //GreenTree.createElement(Clock, {key: 1}),
     //GreenTree.createElement(Clock, {key: 2}),
     //GreenTree.createElement(Clock, {key: 3}),
     //GreenTree.createElement(function_element, { cust: 123 }),
-    GreenTree.createElement(ClassElement, { cust: 456 }),
+    GreenTree.createElement(StateComponent, { t: 1000, dd: 0 }),
+    GreenTree.createElement(StateComponent, { t: 2000, dd: 0 }),
+    GreenTree.createElement(StateComponent, { t: 3000, dd: 0, sd: 1 }),
+    //GreenTree.createElement(ClassElement, { cust: 456 }),
     //"Text node"
   );
   //var element2 = GreenTree.createElement(Clock);
-  console.debug('AltDom:', element1);
+  console.debug('VD:', element1);
   //console.debug('Ref:', ttRef);
-  console.debug("Render:", GreenTree.Render(element1, root));
+  GreenTree.Render(element1, root);
 })();
