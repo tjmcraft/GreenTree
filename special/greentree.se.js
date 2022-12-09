@@ -114,16 +114,13 @@
   }
 
   var GreenElement = function (type, key, ref, self, props) {
-    let element = {
+    let element = Object.seal({
       $$typeof: GREEN_ELEMENT_TYPE,
       type: type,
       key: key,
       ref: ref,
       props: props,
-    };
-    {
-      element._store = {};
-    }
+    });
     return element;
   }
 
@@ -155,11 +152,6 @@
       for (var i = 0; i < childArray.length; i++) {
         childArray[i] = arguments[i + 2];
       }
-      /*childArray = childArray.map(child =>
-        typeof child === "object"
-          ? child
-          : createTextElement(child)
-      );*/
       {
         Object.freeze && Object.freeze(childArray);
       }
@@ -246,6 +238,7 @@
       deletions.forEach(commitWork);
       commitWork(root.child);
       currentRoot = root;
+      // console.warn(">> commit");
       //console.groupEnd();
     }
   }
@@ -256,8 +249,7 @@
    */
   function commitWork(fiber) {
     if (!fiber) return;
-
-    //console.debug(">>", "commit", fiber);
+    //console.group(">> commit <<");
 
     // TODO: Commit recuresevly (upper)
     commitWork(fiber.child); // go down
@@ -272,7 +264,7 @@
     }
     const domParent = domParentFiber.stateNode;
 
-    // recieve commit flags
+    // receive commit flags
     var primaryFlags = fiber.flags & (Placement | Update | Deletion);
 
     switch (primaryFlags) {
@@ -299,9 +291,11 @@
         }; break;
     }
 
+    fiber.memoizedProps = fiber.pendingProps;
+
     commitWork(fiber.sibling); // go side
 
-
+    //console.groupEnd();
     fiber.flags = NoFlags; // Reset leaf update flags
     return fiber;
   }
@@ -314,19 +308,20 @@
     const instance = fiber.stateNode;
     const oldProps = fiber.memoizedProps;
     const newProps = fiber.pendingProps;
-    //console.debug(">>", "commitUpdate", instance, oldProps, newProps);
-    if (instance) {
-      if (fiber.tag == HostText) {
-        updateDom(instance, {
-          nodeValue: oldProps
-        }, {
-          nodeValue: newProps
-        });
-      } else {
-        updateDom(instance, oldProps, newProps);
+    // console.debug(">>", "commitUpdate", Object.freeze({ instance, oldProps, newProps, fiber: { ...fiber } }), fiber);
+    if (fiber.tag != ClassComponent) {
+      if (instance) {
+        if (fiber.tag == HostText) {
+          updateDom(instance, {
+            nodeValue: oldProps
+          }, {
+            nodeValue: newProps
+          });
+        } else {
+          updateDom(instance, oldProps, newProps);
+        }
       }
     }
-    fiber.memoizedProps = fiber.pendingProps;
     // TODO: Implement componentDidUpdate on state Component
     if (fiber.parent && fiber.parent.tag == ClassComponent) {
       if (typeof fiber.parent.stateNode.componentDidUpdate === "function") {
@@ -393,7 +388,7 @@
     //this.props = pendingProps;
     this.pendingProps = pendingProps; // Pending props
     this.memoizedProps = null; // Current props
-    //this.memoizedState = null; // Current state
+    this.memoizedState = null; // Current state
     //this.updateQueue = null; // GTR Update queue
     // Effects
     this.alternate = null; // GTR previous node
@@ -514,11 +509,9 @@
   }
 
   function preformWorkOnUnit(fiber) {
-    //console.group(">>", "perform work on fiber", "<<");
-    //console.debug("{1}", "[performUnitOfWork]", fiber)
 
     var next;
-
+    // console.debug("{0}", "[performUnitOfWork]", { ...fiber });
     next = beginWork(fiber);
 
     if (next === null) {
@@ -526,11 +519,9 @@
     } else {
       nextUnitOfWork = next;
     }
-
   }
 
   function beginWork(fiber) {
-
     if (fiber.type instanceof Function) {
       if (shouldConstruct$1(fiber.type)) {
         return updateClassComponent(fiber);
@@ -542,7 +533,7 @@
     }
   }
 
-  // complete fiber on sibling/parent
+  // complete fiber on parent sibling
   function completeUnitOfWork(fiber) {
     let nextFiber = fiber;
     while (nextFiber) {
@@ -560,13 +551,11 @@
     isMounted: false,
     enqueueSetState: function (inst, payload, callback) {
       const fiber = inst._gtrInternal;
-      console.warn(">>C", "set state", payload);
-      //console.debug(">> fiber class", fiber);
-      //inst.state = payload;
+      //console.warn(">>C", "set state", payload);
+      inst.state = payload;
       //const current = createWorkInProgress(fiber, inst.props);
       //current.alternate = fiber;
-      const current = Object.assign(createLeaf(), fiber, { alternate: fiber, pendingState: payload });
-      //console.debug(">>", "stt", current);
+      const current = Object.assign(createLeaf(), fiber, { alternate: fiber, sibling: null });
       deletions = [];
       workLoopSync(current);
     },
@@ -641,7 +630,7 @@
       const fiber = wipFiber;
       hook.queue.push(action);
       //console.debug(">>U", "setState", fiber);
-      const current = Object.assign(createLeaf(), fiber, { alternate: fiber });
+      const current = Object.assign(createLeaf(), fiber, { alternate: fiber, sibling: null });
       deletions = [];
       workLoopSync(current);
     }
@@ -653,18 +642,54 @@
 
   // == MUTATORS == //
 
+  function arePropsShallowEqual(currentProps, newProps) {
+
+    if (!currentProps || !newProps) {
+      return false;
+    }
+
+    if (currentProps === newProps) {
+      return true;
+    }
+
+    const currentKeys = Object.keys(currentProps);
+    const currentKeysLength = currentKeys.length;
+    const newKeysLength = Object.keys(newProps).length;
+
+    if (currentKeysLength !== newKeysLength) {
+      return false;
+    }
+
+    if (currentKeysLength === 0) {
+      return true;
+    }
+
+    for (let i = 0; i < currentKeysLength; i++) {
+      const prop = currentKeys[i];
+      if (currentProps[prop] !== newProps[prop]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   function updateClassComponent(fiber) {
     //console.debug(">>", "{2}", "[updateClassComponent]", fiber);
     fiber.tag = ClassComponent;
     if (!fiber.stateNode) {
       fiber.stateNode = new fiber.type(fiber.pendingProps);
       fiber.stateNode.updater = classComponentUpdater;
-      fiber.pendingState = fiber.stateNode.state;
     }
-    fiber.stateNode.props = fiber.pendingProps;
-    fiber.stateNode.state = fiber.pendingState;
-    const children = fiber.stateNode.create(fiber.stateNode.props);
-    reconcileChildren(fiber, children);
+    if (arePropsShallowEqual(fiber.memoizedState, fiber.stateNode.state)) {
+      reconcileChildren(fiber, fiber.static);
+    } else {
+      fiber.stateNode.props = fiber.pendingProps;
+      const children = fiber.stateNode.create(fiber.stateNode.props);
+      reconcileChildren(fiber, children);
+      fiber.static = children;
+      fiber.memoizedState = fiber.stateNode.state;
+    }
     return fiber.child;
   }
 
@@ -680,15 +705,17 @@
   }
 
   function updateHostComponent(fiber) {
-    //console.debug("{2}", "[updateHostComponent]", fiber);
     if (!fiber.stateNode) {
+      // console.debug("{2}", "[updateHostComponent]", "create", { ...fiber });
       fiber.stateNode = createDom(fiber);
+    } else {
+      //console.debug("{2}", "[updateHostComponent]", "update", { ...fiber });
     }
     reconcileChildren(fiber);
     return fiber.child;
   }
 
-  function createFiberUpdate(fiber, update) {
+  function createFiberUpdate(fiber, update) { // unused
     let alternateChildFiber = fiber.alternate && fiber.alternate.child;
 
     return Object.assign(createLeaf(), alternateChildFiber, {
@@ -703,6 +730,8 @@
 
   // == RECONCILER == //
 
+  // var rcc = 0;
+
   function reconcileChildren(wipFiber, elements = null) {
 
     if (!elements) {
@@ -712,34 +741,32 @@
       }
     }
 
-    //console.debug("{3}", "[reconcileChildren]", wipFiber, elements);
-
     if (!Array.isArray(elements)) {
-      elements = [elements];
+      elements = elements != null ? [elements] : [];
     }
 
+
     let index = 0;
-    let oldFiber =
-      wipFiber.alternate && wipFiber.alternate.child;
+    let oldFiber = wipFiber.alternate && wipFiber.alternate.child;
     let prevSibling = null;
+
+    // console.debug(`{${rcc}}`, "{3}", "[reconcileChildren]", ">>", { ...wipFiber }, { ...oldFiber }, elements);
+    // rcc++;
 
     while (
       index < elements.length ||
       oldFiber != null
     ) {
-      const element = elements[index]; // tree leaf child
+      const element = elements[index]; // green leaf child
       let newFiber = null;
 
-      const sameType =
-        oldFiber &&
-        element &&
-        element.type == oldFiber.type
+      if (typeof element === 'object') {
+        const sameType =
+          oldFiber &&
+          element &&
+          element.type == oldFiber.type;
 
-      if (sameType) {
-        if (typeof element === 'object') {
-          //Object.freeze(oldFiber);
-          //newFiber = createWorkInProgress(wipFiber, element.props);
-          //newFiber.flags = Update;
+        if (sameType) {
           newFiber = Object.assign(createLeaf(), oldFiber, {
             ref: element.ref,
             pendingProps: element.props,
@@ -747,58 +774,75 @@
             alternate: oldFiber,
             flags: Update,
             index: index,
+            sibling: null
           });
-          //newFiber = createFiberUpdate(wipFiber, element);
-          //console.warn('>> NEW FIBER', newFiber);
-        } else {
-          /* newFiber = createWorkInProgress(wipFiber, element);
-          newFiber.flags = Update; */
-          //Object.freeze(oldFiber);
+        }
+
+        if (element && !sameType) {
+          const leaf = new LeafNode(HostComponent, null, null);
+          leaf.ref = element.ref;
+          leaf.type = element.type;
+          leaf.pendingProps = element.props;
+          leaf.parent = wipFiber;
+          leaf.flags = Placement;
+          leaf.index = index;
+          newFiber = leaf;
+        }
+
+        if (oldFiber && !sameType) {
+          oldFiber.flags = Deletion;
+          deletions.push(oldFiber);
+        }
+
+      } else if (typeof element === "string") {
+
+        const sameType =
+          oldFiber &&
+          element &&
+          oldFiber.tag == HostText;
+
+        if (sameType) {
           newFiber = Object.assign(createLeaf(), oldFiber, {
             pendingProps: element,
             parent: wipFiber,
             alternate: oldFiber,
             flags: Update,
             index: index,
+            sibling: null,
           });
         }
-      }
 
-      if (element && !sameType) {
-        if (typeof element === 'object') {
-          const leaf = new LeafNode(HostComponent, element.props, null);
-          leaf.ref = element.ref;
-          leaf.type = element.type;
-          leaf.parent = wipFiber;
-          leaf.flags = Placement;
-          leaf.index = index;
-          newFiber = leaf;
-        } else {
+        if (element && !sameType) {
           const leaf = new LeafNode(HostText, element, null);
           leaf.parent = wipFiber;
           leaf.flags = Placement;
           leaf.index = index;
           newFiber = leaf;
         }
-      }
 
-      if (oldFiber && !sameType) {
-        oldFiber.flags = Deletion;
-        deletions.push(oldFiber)
-      }
+        if (oldFiber && !sameType) {
+          oldFiber.flags = Deletion;
+          deletions.push(oldFiber);
+        }
 
+      } else {
+        if (oldFiber) {
+          oldFiber.flags = Deletion;
+          deletions.push(oldFiber);
+        }
+      }
 
       if (oldFiber) {
         oldFiber = oldFiber.sibling
       }
 
       if (index === 0) {
-        wipFiber.child = newFiber
+        wipFiber.child = newFiber;
       } else if (element) {
-        prevSibling.sibling = newFiber
+        prevSibling.sibling = newFiber;
       }
 
-      //console.debug('[reconcile]', wipFiber.tag, wipFiber);
+      // console.debug("{3}", '[reconcile]', "<<", { ...wipFiber }, { ...newFiber });
 
       if (wipFiber.stateNode) {
         wipFiber.stateNode._gtrInternal = wipFiber;
