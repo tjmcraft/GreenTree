@@ -18,7 +18,7 @@
     }
     componentDidMount() {
       console.warn('>> componentDidMount', this.state);
-      setInterval(() => this.tick(), 1000);
+      setTimeout(() => this.tick(), 1000);
     }
     componentDidUpdate(oldProps) {
       console.warn('>> componentDidUpdate', this.state);
@@ -33,7 +33,34 @@
   }
   class ClassElement extends Didact.AbstractElement {
     render() {
+      console.debug(">> classEl render");
       return Didact.createElement('span', { className: "span-element", cust: this.props.cust }, "text child");
+    }
+    componentDidMount() {
+      console.warn('>> componentDidMount', "ClassElement");
+    }
+    componentDidUpdate(oldProps) {
+      console.warn('>> componentDidUpdate', "ClassElement");
+    }
+    componentWillUnmount() {
+      console.warn('>> componentWillUnmount', "ClassElement");
+    }
+  }
+  class StateComponent extends Didact.AbstractElement {
+    constructor(props) {
+      super(props);
+      this.state = { show: false };
+    }
+    render() {
+      console.debug(">> render", this.props.t);
+      return Didact.createElement("div", {class: 'state-component', tt: this.props.t}, !this.state.show ? "show" : (!this.props.sd ? "hide" : null))
+    }
+    tick() {
+      this.setState({ show: true });
+      //console.debug(">> tick", this.state);
+    }
+    componentDidMount() {
+      !this.props.dd && setTimeout(() => this.tick(), this.props.t || 1000);
     }
   }
   const ff = ({ cs }) => Didact.createElement("div", { className: "ff-cl" }, cs);
@@ -41,7 +68,14 @@
     const [state, setState] = Didact.useState(1)
     return Didact.createElement('div', { className: "function-element", cust: props.cust, onClick: () => setState(c => c + 1) }, "function element:", Didact.createElement(ff, { cs: state }));
   }
-  const App = Didact.createElement('div', null, Didact.createElement(Clock), Didact.createElement(ClassElement), Didact.createElement(FunctionElement));
+  const App = Didact.createElement('div', null,
+    Didact.createElement(StateComponent, { t: 1000 }),
+    Didact.createElement(StateComponent, { t: 2000 }),
+    Didact.createElement(StateComponent, { t: 3000, sd: 1 }),
+    // Didact.createElement(Clock),
+    // Didact.createElement(ClassElement),
+    // Didact.createElement(FunctionElement)
+  );
   console.debug("VD", App);
   Didact.render(App, document.getElementById("app-mount"));
 </script>

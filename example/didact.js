@@ -204,7 +204,8 @@ function commitRoot() {
   deletions.forEach(commitWork)
   commitWork(wipRoot.child)
   currentRoot = wipRoot
-  wipRoot = null
+  wipRoot = null;
+  console.warn(">> commit");
 }
 
 function commitWork(fiber) {
@@ -238,6 +239,7 @@ function commitWork(fiber) {
         const instance = fiber.dom;
         const oldProps = fiber.alternate.props;
         const newProps = fiber.props;
+        console.debug(">>", "commitUpdate", instance, oldProps, newProps);
         if (instance) {
           updateDom(instance, oldProps, newProps);
         }
@@ -306,7 +308,7 @@ function workLoop(deadline) {
 requestIdleCallback(workLoop);
 
 function performUnitOfWork(fiber) {
-  //console.debug(">>>", "{1}", "[performUnitOfWork]", fiber)
+  console.debug(">>>", "{1}", "[performUnitOfWork]", { ...fiber })
   const isFunctionComponent =
     fiber.type instanceof Function
   if (isFunctionComponent) {
@@ -319,11 +321,13 @@ function performUnitOfWork(fiber) {
     updateHostComponent(fiber)
   }
   if (fiber.child) {
+    console.log(">>", "beginChild", { ...fiber.child });
     return fiber.child
   }
   let nextFiber = fiber
   while (nextFiber) {
     if (nextFiber.sibling) {
+      console.log(">>", "beginSibling", { ...nextFiber.sibling });
       return nextFiber.sibling
     }
     nextFiber = nextFiber.parent
@@ -358,13 +362,15 @@ function updateFunctionComponent(fiber) {
 }
 
 function updateHostComponent(fiber) {
-  //console.debug(">>", "{2}", "[updateHostComponent]", fiber);
   fiber.tag = 5;
   if (!fiber.dom) {
+    console.debug(">>", "{2}", "[updateHostComponent]", "create", fiber);
     fiber.dom = createDom(fiber)
   }
   reconcileChildren(fiber, fiber.props.children)
 }
+
+var rcc = 0;
 
 function reconcileChildren(wipFiber, elements) {
 
@@ -374,6 +380,9 @@ function reconcileChildren(wipFiber, elements) {
   let oldFiber =
     wipFiber.alternate && wipFiber.alternate.child;
   let prevSibling = null;
+
+  console.debug(`{${rcc}}`, "{3}", "[reconcileChildren]", ">>", { ...wipFiber }, { ...oldFiber }, { ...elements });
+  rcc++;
 
   while (
     index < elements.length ||
@@ -422,7 +431,7 @@ function reconcileChildren(wipFiber, elements) {
       prevSibling.sibling = newFiber
     }
 
-    //console.debug('[reconcile]', wipFiber.tag, wipFiber);
+    console.debug("{3}", '[reconcile]', "<<", { ...wipFiber }, { ...newFiber });
 
     if (wipFiber.stateNode) {
       wipFiber.stateNode._gtrInternal = wipFiber;

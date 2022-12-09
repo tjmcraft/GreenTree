@@ -20,15 +20,16 @@
         }
         componentDidMount() {
             console.warn('>> componentDidMount', this.state);
-            setTimeout(() => this.tick(), 100);
+            setTimeout(() => this.tick(), 1000);
         }
         render() {
-            //console.warn('>>> render', this.state);
+            console.warn('>>> render', this.state);
             return React.createElement('div', { className: ['clock', 'sep'] }, `${this.state.date}`);
         }
     }
     class ClassElement extends React.Component {
         render() {
+            console.debug(">> classEl render");
             return React.createElement('span', { className: "span-element", cust: this.props.cust }, "text child");
         }
     }
@@ -42,10 +43,8 @@
     }
     const App = React.createElement('h1', null,
         React.createElement(Clock),
-        React.createElement(Clock),
-        React.createElement(Clock),
         React.createElement(ClassElement),
-        React.createElement(FunctionElement)
+        //React.createElement(FunctionElement)
         );
     console.debug("VD", App);
     ReactDOM.render(App, document.getElementById("app-mount"));
