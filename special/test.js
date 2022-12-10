@@ -153,10 +153,27 @@ const root = document.getElementById("root");
     }
     create() {
       console.debug(">> render", this.props.t);
-      return GreenTree.createElement("div", {class: 'state-component', tt: this.props.t}, !this.state.show ? "show" : (!this.props.sd ? "hide" : null))
+      return !this.state.show ? "show" : (!this.props.sd ? "hide" : null);
     }
     tick() {
       this.setState({ show: true });
+      //console.debug(">> tick", this.state);
+    }
+    componentDidMount() {
+      !this.props.dd && setTimeout(() => this.tick(), this.props.t || 1000);
+    }
+  }
+
+  class RouteComponent extends GreenTree.AbstractElement {
+    constructor(props) {
+      super(props);
+      this.state = {url: "/1"};
+    }
+    create() {
+      return this.state.url == this.props.url ? this.props.url : null;
+    }
+    tick() {
+      this.setState({ url: "/2" });
       //console.debug(">> tick", this.state);
     }
     componentDidMount() {
@@ -188,9 +205,11 @@ const root = document.getElementById("root");
     //GreenTree.createElement(Clock, {key: 2}),
     //GreenTree.createElement(Clock, {key: 3}),
     //GreenTree.createElement(function_element, { cust: 123 }),
-    GreenTree.createElement(StateComponent, { t: 1000, dd: 0 }),
-    GreenTree.createElement(StateComponent, { t: 2000, dd: 0 }),
-    GreenTree.createElement(StateComponent, { t: 3000, dd: 0, sd: 1 }),
+    // GreenTree.createElement(StateComponent, { t: 1000, dd: 0 }),
+    // GreenTree.createElement(StateComponent, { t: 2000, dd: 0 }),
+    // GreenTree.createElement(StateComponent, { t: 3000, dd: 0, sd: 1 }),
+    GreenTree.createElement(RouteComponent, { url: '/1', t: 1000 }),
+    GreenTree.createElement(RouteComponent, { url: '/2', t: 1000 }),
     //GreenTree.createElement(ClassElement, { cust: 456 }),
     //"Text node"
   );

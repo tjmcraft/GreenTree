@@ -556,6 +556,7 @@
       //const current = createWorkInProgress(fiber, inst.props);
       //current.alternate = fiber;
       const current = Object.assign(createLeaf(), fiber, { alternate: fiber, sibling: null });
+      // console.debug(">>C current", current);
       deletions = [];
       workLoopSync(current);
     },
@@ -844,12 +845,11 @@
 
       // console.debug("{3}", '[reconcile]', "<<", { ...wipFiber }, { ...newFiber });
 
-      if (wipFiber.stateNode) {
-        wipFiber.stateNode._gtrInternal = wipFiber;
-      }
-
       prevSibling = newFiber
       index++
+    }
+    if (wipFiber.stateNode) {
+      wipFiber.stateNode._gtrInternal = wipFiber;
     }
   }
 
