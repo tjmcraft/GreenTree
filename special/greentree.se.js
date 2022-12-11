@@ -712,7 +712,7 @@
     } else {
       //console.debug("{2}", "[updateHostComponent]", "update", { ...fiber });
     }
-    reconcileChildren(fiber);
+    reconcileChildren(fiber, fiber.pendingProps.children);
     return fiber.child;
   }
 
@@ -733,19 +733,11 @@
 
   // var rcc = 0;
 
-  function reconcileChildren(wipFiber, elements = null) {
-
-    if (!elements) {
-      let props = wipFiber.pendingProps;
-      if (props && props.children) {
-        elements = props.children;
-      }
-    }
+  function reconcileChildren(wipFiber, elements) {
 
     if (!Array.isArray(elements)) {
       elements = elements != null ? [elements] : [];
     }
-
 
     let index = 0;
     let oldFiber = wipFiber.alternate && wipFiber.alternate.child;
