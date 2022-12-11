@@ -33,6 +33,22 @@
             return React.createElement('span', { className: "span-element", cust: this.props.cust }, "text child");
         }
     }
+    class RouteComponent extends React.Component {
+        constructor(props) {
+        super(props);
+        this.state = {url: "/1"};
+        }
+        render() {
+        return this.state.url == this.props.url ? this.props.children : null;
+        }
+        tick() {
+        this.setState({ url: "/2" });
+        //console.debug(">> tick", this.state);
+        }
+        componentDidMount() {
+        !this.props.dd && setTimeout(() => this.tick(), this.props.t || 1000);
+        }
+    }
     const ff = ({ cs }) => React.createElement("div", { className: "ff-cl" }, cs);
     function FunctionElement(props) {
         const [state, setState] = React.useState(1)
@@ -42,9 +58,13 @@
         return React.createElement('div', { className: "function-element", cust: props.cust, onClick: () => setState(c => c + 1) }, "function element:", React.createElement(ff, { cs: state }));
     }
     const App = React.createElement('h1', null,
-        React.createElement(Clock),
-        React.createElement(ClassElement),
-        //React.createElement(FunctionElement)
+        //React.createElement(Clock),
+        //React.createElement(ClassElement),
+        //React.createElement(FunctionElement),
+        React.createElement(RouteComponent, { url: '/1', t: 1000 }, "1"),
+        React.createElement(RouteComponent, { url: '/2', t: 1000 }, "2"),
+        React.createElement(RouteComponent, { url: '/1', t: 2000 }, "3"),
+        React.createElement(RouteComponent, { url: '/2', t: 2000 }, "4"),
         );
     console.debug("VD", App);
     ReactDOM.render(App, document.getElementById("app-mount"));

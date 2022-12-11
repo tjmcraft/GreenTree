@@ -164,13 +164,25 @@ const root = document.getElementById("root");
     }
   }
 
+  function Route({path, children}) {
+    const [state, setState] = GreenTree.useState(window.location.pathname);
+    GreenTree.useEffect(() => {
+      const onLocationChange = () => {
+        setState(window.location.pathname);
+      };
+      window.addEventListener("navigate", onLocationChange);
+      return () => window.removeEventListener("navigate", onLocationChange);
+    }, []);
+    return state === path ? children : null;
+  }
+
   class RouteComponent extends GreenTree.AbstractElement {
     constructor(props) {
       super(props);
       this.state = {url: "/1"};
     }
     create() {
-      return this.state.url == this.props.url ? this.props.url : null;
+      return this.state.url == this.props.url ? this.props.children : null;
     }
     tick() {
       this.setState({ url: "/2" });
@@ -208,8 +220,11 @@ const root = document.getElementById("root");
     // GreenTree.createElement(StateComponent, { t: 1000, dd: 0 }),
     // GreenTree.createElement(StateComponent, { t: 2000, dd: 0 }),
     // GreenTree.createElement(StateComponent, { t: 3000, dd: 0, sd: 1 }),
-    GreenTree.createElement(RouteComponent, { url: '/1', t: 1000 }),
-    GreenTree.createElement(RouteComponent, { url: '/2', t: 1000 }),
+    //GreenTree.createElement(Route, { url: '/1', t: 1000 }, "1"),
+    GreenTree.createElement(RouteComponent, { url: '/1', t: 1000 }, "1"),
+    GreenTree.createElement(RouteComponent, { url: '/2', t: 1000 }, "2"),
+    GreenTree.createElement(RouteComponent, { url: '/1', t: 2000 }, "3"),
+    GreenTree.createElement(RouteComponent, { url: '/2', t: 2000 }, "4"),
     //GreenTree.createElement(ClassElement, { cust: 456 }),
     //"Text node"
   );
