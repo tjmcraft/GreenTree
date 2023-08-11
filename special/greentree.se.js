@@ -832,7 +832,11 @@
       if (index === 0) {
         wipFiber.child = newFiber;
       } else if (element) {
-        prevSibling.sibling = newFiber;
+        if (prevSibling) {
+          prevSibling.sibling = newFiber;
+        } else {
+          wipFiber.child = newFiber;
+        }
       }
 
       // console.debug("{3}", '[reconcile]', "<<", { ...wipFiber }, { ...newFiber });
