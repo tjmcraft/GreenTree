@@ -573,15 +573,17 @@
 
   function useEffect(callback, deps) {
 
-    if (wipFiber.tag != FunctionComponent) {
+    const fiber = wipFiber;
+
+    if (fiber.tag != FunctionComponent) {
       console.error("Cannot use hooks outside of a function component!");
       return;
     }
 
     const oldHook =
-      wipFiber.alternate &&
-      wipFiber.alternate.hooks &&
-      wipFiber.alternate.hooks[hookIndex];
+      fiber.alternate &&
+      fiber.alternate.hooks &&
+      fiber.alternate.hooks[hookIndex];
 
     const hook = {
       deps: oldHook ? oldHook.deps : undefined,
@@ -597,21 +599,23 @@
       hook.deps = deps;
     }
 
-    wipFiber.hooks.push(hook);
+    fiber.hooks.push(hook);
     hookIndex++;
   }
 
   function useState(initial) {
 
-    if (wipFiber.tag != FunctionComponent) {
+    const fiber = wipFiber;
+
+    if (fiber.tag != FunctionComponent) {
       console.error("Cannot use hooks outside of a function component!");
       return;
     }
 
     const oldHook =
-      wipFiber.alternate &&
-      wipFiber.alternate.hooks &&
-      wipFiber.alternate.hooks[hookIndex];
+      fiber.alternate &&
+      fiber.alternate.hooks &&
+      fiber.alternate.hooks[hookIndex];
 
     const hook = {
       state: oldHook ? oldHook.state : initial,
@@ -628,15 +632,14 @@
     })
 
     const setState = (action) => {
-      const fiber = wipFiber;
       hook.queue.push(action);
-      //console.debug(">>U", "setState", fiber);
+      // console.debug(">>U", "setState", fiber);
       const current = Object.assign(createLeaf(), fiber, { alternate: fiber, sibling: null });
       deletions = [];
       workLoopSync(current);
     }
 
-    wipFiber.hooks.push(hook);
+    fiber.hooks.push(hook);
     hookIndex++;
     return [hook.state, setState];
   }
