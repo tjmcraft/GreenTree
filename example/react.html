@@ -62,12 +62,24 @@
         //React.createElement(ClassElement),
         //React.createElement(FunctionElement),
         React.createElement(RouteComponent, { url: '/1', t: 1000 }, "1"),
-        React.createElement(RouteComponent, { url: '/2', t: 1000 }, "2"),
+        React.createElement(RouteComponent, { url: '/2', t: 1500 }, "2"),
         React.createElement(RouteComponent, { url: '/1', t: 2000 }, "3"),
-        React.createElement(RouteComponent, { url: '/2', t: 2000 }, "4"),
+        // React.createElement(RouteComponent, { url: '/2', t: 2000 }, "4"),
         );
+
+        function Counter() {
+    const [state, setState] = React.useState(1);
+
+    return (
+      React.createElement('h1', {onClick:()=>setState(c => c + 1)},
+        state == 1 ? React.createElement('span', null, "first") : undefined,
+        state == 2 ? React.createElement('span', null, "fsirst") : undefined,
+        state == 3 ? React.createElement('span', null, "ftirst") : undefined,
+      )
+    )
+  }
     console.debug("VD", App);
-    ReactDOM.render(App, document.getElementById("app-mount"));
+    ReactDOM.render(React.createElement(Counter), document.getElementById("app-mount"));
 </script>
 
 </html>
