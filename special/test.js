@@ -186,7 +186,7 @@ const root = document.getElementById("root");
     }
     tick() {
       this.setState({ url: "/2" });
-      //console.debug(">> tick", this.state);
+      console.debug(">> tick", this.props.url == this.state.url);
     }
     componentDidMount() {
       !this.props.dd && setTimeout(() => this.tick(), this.props.t || 1000);
@@ -210,7 +210,7 @@ const root = document.getElementById("root");
   //const ttRef = GreenTree.createRef();
 
   var element = GreenTree.createElement('h1', null, "Hello world!");
-  var element1 = GreenTree.createElement('h1', { class: 'container' },
+  var element1 = () => GreenTree.createElement('h1', { class: 'container' },
     //GreenTree.createElement('div', { class: 'two' }, 'text', 'text2'),
     //GreenTree.createElement('div', { class: 'twosep' }, 'text23'),
     //GreenTree.createElement(Clock, {key: 1}),
@@ -221,13 +221,26 @@ const root = document.getElementById("root");
     // GreenTree.createElement(StateComponent, { t: 2000, dd: 0 }),
     // GreenTree.createElement(StateComponent, { t: 3000, dd: 0, sd: 1 }),
     //GreenTree.createElement(Route, { url: '/1', t: 1000 }, "1"),
-    GreenTree.createElement(RouteComponent, { url: '/1', t: 1000 }, "1"),
-    GreenTree.createElement(RouteComponent, { url: '/2', t: 1500 }, "2"),
+    // GreenTree.createElement(RouteComponent, { url: '/1', t: 1000 }, "1"),
+    GreenTree.createElement(RouteComponent, { url: '/2', t: 1000 }, "2"),
     GreenTree.createElement(RouteComponent, { url: '/1', t: 2000 }, "3"),
-    // GreenTree.createElement(RouteComponent, { url: '/2', t: 2000 }, "4"),
+    GreenTree.createElement(RouteComponent, { url: '/2', t: 1000 }, "4"),
     //GreenTree.createElement(ClassElement, { cust: 456 }),
     //"Text node"
   );
+  function Sn({ cur, on, children }) {
+    return cur == on ? children : null;
+  }
+  function SwitchNode() {
+    const [state, setState] = GreenTree.useState(1);
+    console.debug(">>", state);
+    return (
+      GreenTree.createElement('h1', { onclick: () => setState(c => c + 1) },
+        GreenTree.createElement(Sn, { cur: state, on: 2 }, "2"),
+        GreenTree.createElement("span", {}, "3"),
+      )
+    )
+  }
   function Counter() {
     const [state, setState] = GreenTree.useState(1);
 
@@ -242,5 +255,5 @@ const root = document.getElementById("root");
   //var element2 = GreenTree.createElement(Clock);
   console.debug('VD:', element1);
   //console.debug('Ref:', ttRef);
-  GreenTree.Render(GreenTree.createElement(Counter), root);
+  GreenTree.Render(GreenTree.createElement(SwitchNode), root);
 })();

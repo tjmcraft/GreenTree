@@ -6,7 +6,7 @@
  * Created for TJMC-Company, Inc. by MakAndJo
  */
 
- 'use strict';
+'use strict';
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -233,13 +233,13 @@
 
   function commitRoot(root) {
     if (root) {
-      //console.group(">>", "commitRoot", "<<");
-      //console.debug(">>", "commit", root)
+      // console.group(">>", "commitRoot", "<<");
+      // console.debug(">>", "commit", root)
       deletions.forEach(commitWork);
       commitWork(root.child);
       currentRoot = root;
-      // console.warn(">> commit");
-      //console.groupEnd();
+      // console.debug(">> commit end");
+      // console.groupEnd();
     }
   }
 
@@ -251,11 +251,10 @@
     if (!fiber) return;
     //console.group(">> commit <<");
 
+    console.log("[commitWork]", fiber);
+
     // TODO: Commit recuresevly (upper)
     commitWork(fiber.child); // go down
-
-
-    //console.log("[commitWork]", fiber);
 
     // find the stateNode under parent of parent of parent
     let domParentFiber = fiber.parent;
@@ -293,11 +292,12 @@
 
     fiber.memoizedProps = fiber.pendingProps;
 
+
     commitWork(fiber.sibling); // go side
 
     //console.groupEnd();
     fiber.flags = NoFlags; // Reset leaf update flags
-    return fiber;
+    // return fiber;
   }
 
   /**
@@ -397,21 +397,21 @@
     }
   }
 
-  const createLeaf = function(tag, pendingProps, key) {
+  const createLeaf = function (tag, pendingProps, key) {
     return new LeafNode(tag, pendingProps, key);
   };
 
   // == LEAF ROOT == //
 
   function getPublicRootInstance(container) {
-      //console.debug("[getPublicRootInstance]", container);
-      var containerFiber = container.current;
+    //console.debug("[getPublicRootInstance]", container);
+    var containerFiber = container.current;
 
-      if (!containerFiber.child) {
-          return null;
-      }
+    if (!containerFiber.child) {
+      return null;
+    }
 
-      return containerFiber.child.stateNode;
+    return containerFiber.child.stateNode;
   }
 
   /**
@@ -444,24 +444,24 @@
   }
 
   function DOMBlockingRoot(container, tag, options) {
-      this._internalRoot = createRootNode(container, tag, options);
+    this._internalRoot = createRootNode(container, tag, options);
   }
 
   function createRoot(container, options) {
-      return new DOMBlockingRoot(container, LegacyRoot, options);
+    return new DOMBlockingRoot(container, LegacyRoot, options);
   }
 
   function createRootContainer(container) {
-      var rootSibling;
-      var warned = false;
-      while (rootSibling = container.lastChild) {
-          if (!warned && rootSibling.nodeType === DOCUMENT_NODE) {
-              console.warn('Root container is not empty!');
-              warned = true;
-          }
-          container.removeChild(rootSibling);
+    var rootSibling;
+    var warned = false;
+    while (rootSibling = container.lastChild) {
+      if (!warned && rootSibling.nodeType === DOCUMENT_NODE) {
+        console.warn('Root container is not empty!');
+        warned = true;
       }
-      return createRoot(container);
+      container.removeChild(rootSibling);
+    }
+    return createRoot(container);
   }
 
   // == ROOT RENDER == //
@@ -505,7 +505,9 @@
     while (nextUnitOfWork != null) {
       preformWorkOnUnit(nextUnitOfWork);
     }
-    commitRoot(firstRoot);
+    if (!nextUnitOfWork) {
+      commitRoot(firstRoot);
+    }
   }
 
   function preformWorkOnUnit(fiber) {
@@ -842,7 +844,7 @@
         }
       }
 
-      // console.debug("{3}", '[reconcile]', "<<", { ...wipFiber }, { ...newFiber });
+      console.debug("{3}", '[reconcile]', "<<", { ...wipFiber }, { ...newFiber });
 
       prevSibling = newFiber
       index++
